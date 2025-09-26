@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Jared's Tools</title>
+    <style>
+      body {
+        background: linear-gradient(135deg, #232526 0%, #414345 100%);
+        color: #f3f3f3;
+        font-family: "Segoe UI", "Arial", sans-serif;
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      header {
+        margin-top: 48px;
+        margin-bottom: 32px;
+        text-align: center;
+      }
+      h1 {
+        font-size: 2.8rem;
+        letter-spacing: 2px;
+        background: linear-gradient(90deg, #00c6ff, #0072ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      .tools-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 32px;
+        justify-content: center;
+        margin-bottom: 48px;
+      }
+      .tool-card {
+        background: rgba(30, 34, 40, 0.95);
+        border-radius: 16px;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.18);
+        padding: 32px 28px 24px 28px;
+        min-width: 240px;
+        max-width: 320px;
+        transition: transform 0.18s, box-shadow 0.18s;
+        text-align: center;
+        border: 1.5px solid #2e3740;
+      }
+      .tool-card:hover {
+        transform: translateY(-6px) scale(1.03);
+        box-shadow: 0 8px 32px rgba(0, 198, 255, 0.18);
+        border-color: #00c6ff;
+      }
+      .tool-title {
+        font-size: 1.3rem;
+        margin-bottom: 10px;
+        color: #00c6ff;
+      }
+      .tool-desc {
+        font-size: 1rem;
+        color: #bfc9d1;
+        margin-bottom: 18px;
+      }
+      .tool-link {
+        display: inline-block;
+        padding: 8px 20px;
+        background: linear-gradient(90deg, #00c6ff, #0072ff);
+        color: #fff;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        letter-spacing: 1px;
+        transition: background 0.18s, color 0.18s;
+      }
+      .tool-link:hover {
+        background: linear-gradient(90deg, #0072ff, #00c6ff);
+        color: #232526;
+      }
+      footer {
+        margin-top: auto;
+        padding: 24px 0 12px 0;
+        color: #7a8a99;
+        font-size: 0.98rem;
+        text-align: center;
+      }
+      a {
+        color: #00c6ff;
+        text-decoration: none;
+      }
+      @media (max-width: 700px) {
+        .tools-list {
+          flex-direction: column;
+          gap: 20px;
+        }
+        .tool-card {
+          min-width: 0;
+          width: 90vw;
+          max-width: 98vw;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Jared's Tools</h1>
+      <p style="color: #bfc9d1; font-size: 1.15rem; margin-top: 10px">
+        A collection of handy tools and experiments by Jared
+      </p>
+    </header>
+    <main>
+      <div class="tools-list" id="tools-list">
+        <div class="tool-card">
+          <div class="tool-title">LeftRight Audio Test</div>
+          <div class="tool-desc">
+            Test your speakers or headphones with left/right audio channels.
+          </div>
+          <a
+            class="tool-link"
+            href="https://leftright.jwd.me"
+            target="_blank"
+            rel="noopener"
+            >Visit</a
+          >
+        </div>
+        <div class="tool-card">
+          <div class="tool-title">Gamepad Tester</div>
+          <div class="tool-desc">
+            Check your gamepad or controller inputs in real time.
+          </div>
+          <a
+            class="tool-link"
+            href="https://gamepad.jwd.me"
+            target="_blank"
+            rel="noopener"
+            >Visit</a
+          >
+        </div>
+        <!-- Add more tool cards here as you build more tools! -->
+      </div>
+    </main>
+    <footer>
+      &copy; <span id="year"></span> Jared W. &mdash;
+      <span style="color: #00c6ff"><a href="https://jwd.me">jwd.me</a></span>
+    </footer>
+    <script>
+      // Set current year in footer
+      document.getElementById("year").textContent = new Date().getFullYear();
+
+      // Example: Add new tools dynamically in the future
+      // const tools = [ ... ];
+      // You could fetch or update the list here if you want to make it dynamic.
+    </script>
+  </body>
+</html>
