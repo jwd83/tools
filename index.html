@@ -109,47 +109,7 @@
     </header>
     <main>
       <div class="tools-list" id="tools-list">
-        <div class="tool-card">
-          <div class="tool-title">LeftRight Audio Test</div>
-          <div class="tool-desc">
-            Test your speakers or headphones with left/right audio channels.
-          </div>
-          <a
-            class="tool-link"
-            href="https://leftright.jwd.me"
-            target="_blank"
-            rel="noopener"
-            >Visit</a
-          >
-        </div>
-        <div class="tool-card">
-          <div class="tool-title">Gamepad Tester</div>
-          <div class="tool-desc">
-            Check your gamepad or controller inputs in real time.
-          </div>
-          <a
-            class="tool-link"
-            href="https://gamepad.jwd.me"
-            target="_blank"
-            rel="noopener"
-            >Visit</a
-          >
-        </div>
-        <div class="tool-card">
-          <div class="tool-title">Shrink — Image Resizer</div>
-          <div class="tool-desc">
-            Shrink large images so they're small enough to upload to Discord or
-            other sites.
-          </div>
-          <a
-            class="tool-link"
-            href="https://shrink.jwd.me"
-            target="_blank"
-            rel="noopener"
-            >Visit</a
-          >
-        </div>
-        <!-- Add more tool cards here as you build more tools! -->
+        <!-- Tool cards will be generated here dynamically -->
       </div>
     </main>
     <footer>
@@ -160,9 +120,47 @@
       // Set current year in footer
       document.getElementById("year").textContent = new Date().getFullYear();
 
-      // Example: Add new tools dynamically in the future
-      // const tools = [ ... ];
-      // You could fetch or update the list here if you want to make it dynamic.
+      // Define tools dynamically
+      const tools = [
+        {
+          title: "LeftRight Audio Test",
+          description:
+            "Test your speakers or headphones with left/right audio channels.",
+          link: "https://leftright.jwd.me",
+        },
+        {
+          title: "Gamepad Tester",
+          description: "Check your gamepad or controller inputs in real time.",
+          link: "https://gamepad.jwd.me",
+        },
+        {
+          title: "Shrink - Image Resizer",
+          description:
+            "Shrink large images so they're small enough to upload to Discord or other sites.",
+          link: "https://shrink.jwd.me",
+        },
+        {
+          title: "Croppy - Square 640 Image Cropper",
+          description:
+            "Crop your images to a perfect square 640x640 format usable by Wan/ComfyUI.",
+          link: "https://jwd83.github.io/croppy/",
+        },
+      ];
+
+      // Generate tool cards dynamically
+      const toolsList = document.getElementById("tools-list");
+      tools.forEach((tool) => {
+        const card = document.createElement("div");
+        card.className = "tool-card";
+
+        card.innerHTML = `
+          <div class="tool-title">${tool.title}</div>
+          <div class="tool-desc">${tool.description}</div>
+          <a class="tool-link" href="${tool.link}" target="_blank" rel="noopener">Visit</a>
+        `;
+
+        toolsList.appendChild(card);
+      });
     </script>
   </body>
 </html>
