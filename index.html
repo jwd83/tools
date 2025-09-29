@@ -1,182 +1,206 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Jared's Tools</title>
-    <style>
-      body {
-        background: linear-gradient(135deg, #232526 0%, #414345 100%);
-        color: #f3f3f3;
-        font-family: "Segoe UI", "Arial", sans-serif;
-        margin: 0;
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-      }
-      header {
-        margin-top: 48px;
-        margin-bottom: 32px;
-        text-align: center;
-      }
-      h1 {
-        font-size: 2.8rem;
-        letter-spacing: 2px;
-        background: linear-gradient(90deg, #00c6ff, #0072ff);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-      }
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jared's Tools</title>
+  <style>
+    body {
+      background: linear-gradient(135deg, #232526 0%, #414345 100%);
+      color: #f3f3f3;
+      font-family: "Segoe UI", "Arial", sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    header {
+      margin-top: 48px;
+      margin-bottom: 32px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2.8rem;
+      letter-spacing: 2px;
+      background: linear-gradient(90deg, #00c6ff, #0072ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .tools-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 32px;
+      justify-content: center;
+      margin-bottom: 48px;
+    }
+
+    .tool-card {
+      background: rgba(30, 34, 40, 0.95);
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.18);
+      padding: 32px 28px 24px 28px;
+      min-width: 240px;
+      max-width: 320px;
+      transition: transform 0.18s, box-shadow 0.18s;
+      text-align: center;
+      border: 1.5px solid #2e3740;
+    }
+
+    .tool-card:hover {
+      transform: translateY(-6px) scale(1.03);
+      box-shadow: 0 8px 32px rgba(0, 198, 255, 0.18);
+      border-color: #00c6ff;
+    }
+
+    .tool-title {
+      font-size: 1.3rem;
+      margin-bottom: 10px;
+      color: #00c6ff;
+    }
+
+    .tool-desc {
+      font-size: 1rem;
+      color: #bfc9d1;
+      margin-bottom: 18px;
+    }
+
+    .tool-link {
+      display: inline-block;
+      padding: 8px 20px;
+      background: linear-gradient(90deg, #00c6ff, #0072ff);
+      color: #fff;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      letter-spacing: 1px;
+      transition: background 0.18s, color 0.18s;
+    }
+
+    .tool-link:hover {
+      background: linear-gradient(90deg, #0072ff, #00c6ff);
+      color: #232526;
+    }
+
+    footer {
+      margin-top: auto;
+      padding: 24px 0 12px 0;
+      color: #7a8a99;
+      font-size: 0.98rem;
+      text-align: center;
+    }
+
+    a {
+      color: #00c6ff;
+      text-decoration: none;
+    }
+
+    @media (max-width: 700px) {
       .tools-list {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 32px;
-        justify-content: center;
-        margin-bottom: 48px;
+        flex-direction: column;
+        gap: 20px;
       }
+
       .tool-card {
-        background: rgba(30, 34, 40, 0.95);
-        border-radius: 16px;
-        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.18);
-        padding: 32px 28px 24px 28px;
-        min-width: 240px;
-        max-width: 320px;
-        transition: transform 0.18s, box-shadow 0.18s;
-        text-align: center;
-        border: 1.5px solid #2e3740;
+        min-width: 0;
+        width: 90vw;
+        max-width: 98vw;
       }
-      .tool-card:hover {
-        transform: translateY(-6px) scale(1.03);
-        box-shadow: 0 8px 32px rgba(0, 198, 255, 0.18);
-        border-color: #00c6ff;
-      }
-      .tool-title {
-        font-size: 1.3rem;
-        margin-bottom: 10px;
-        color: #00c6ff;
-      }
-      .tool-desc {
-        font-size: 1rem;
-        color: #bfc9d1;
-        margin-bottom: 18px;
-      }
-      .tool-link {
-        display: inline-block;
-        padding: 8px 20px;
-        background: linear-gradient(90deg, #00c6ff, #0072ff);
-        color: #fff;
-        border-radius: 8px;
-        text-decoration: none;
-        font-weight: 600;
-        letter-spacing: 1px;
-        transition: background 0.18s, color 0.18s;
-      }
-      .tool-link:hover {
-        background: linear-gradient(90deg, #0072ff, #00c6ff);
-        color: #232526;
-      }
-      footer {
-        margin-top: auto;
-        padding: 24px 0 12px 0;
-        color: #7a8a99;
-        font-size: 0.98rem;
-        text-align: center;
-      }
-      a {
-        color: #00c6ff;
-        text-decoration: none;
-      }
-      @media (max-width: 700px) {
-        .tools-list {
-          flex-direction: column;
-          gap: 20px;
-        }
-        .tool-card {
-          min-width: 0;
-          width: 90vw;
-          max-width: 98vw;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <header>
-      <h1>Jared's Tools</h1>
-      <p style="color: #bfc9d1; font-size: 1.15rem; margin-top: 10px">
-        A collection of my handy tools and experiments
-      </p>
-    </header>
-    <main>
-      <div class="tools-list" id="tools-list">
-        <!-- Tool cards will be generated here dynamically -->
-      </div>
-    </main>
-    <footer>
-      &copy; <span id="year"></span>
-      <span style="color: #00c6ff"><a href="https://jwd.me">jwd.me</a> - <a href="https://github.com/jwd83/tools">src</a></span>
-    </footer>
-    <script>
-      // Set current year in footer
-      document.getElementById("year").textContent = new Date().getFullYear();
+    }
+  </style>
+</head>
 
-      // Define tools dynamically
-      const tools = [
-        {
-          title: "LeftRight Audio Test",
-          description:
-            "Test your speakers or headphones with left/right audio channels.",
-          link: "https://leftright.jwd.me",
-        },
-        {
-          title: "Gamepad Tester",
-          description: "Check your gamepad or controller inputs in real time.",
-          link: "https://gamepad.jwd.me",
-        },
-        {
-          title: "Shrink - Image Resizer",
-          description:
-            "Shrink large images so they're small enough to upload to Discord or other sites.",
-          link: "https://shrink.jwd.me",
-        },
-        {
-          title: "Croppy - Square 640 Image Cropper",
-          description:
-            "Crop your images to a perfect square 640x640 format usable by Wan/ComfyUI.",
-          link: "https://jwd83.github.io/croppy/",
-        },
+<body>
+  <header>
+    <h1>Jared's Tools</h1>
+    <p style="color: #bfc9d1; font-size: 1.15rem; margin-top: 10px">
+      A collection of my handy tools and experiments
+    </p>
+  </header>
+  <main>
+    <div class="tools-list" id="tools-list">
+      <!-- Tool cards will be generated here dynamically -->
+    </div>
+  </main>
+  <footer>
+    &copy; <span id="year"></span>
+    <span style="color: #00c6ff"><a href="https://jwd.me">jwd.me</a> - <a
+        href="https://github.com/jwd83/tools">src</a></span>
+  </footer>
+  <script>
+    // Set current year in footer
+    document.getElementById("year").textContent = new Date().getFullYear();
 
-        // https://jwd83.github.io/mic-fft/
-        {
-          title: "Mic FFT Visualizer",
-          description:
-            "Visualize your microphone input in real-time using Fast Fourier Transform (FFT).",
-          link: "https://jwd83.github.io/mic-fft/",
-        },
-        // https://jwd83.github.io/cleaner/
-        {
-          title: "URL Cleaner",
-          description:
-            "Strip the tracking and extra crap off URLs to make them easier to share",
-          link: "https://jwd83.github.io/cleaner/",
-        },
+    // Define tools dynamically
+    const tools = [
+      {
+        title: "LeftRight Audio Test",
+        description:
+          "Test your speakers or headphones with left/right audio channels.",
+        link: "https://leftright.jwd.me",
+      },
+      {
+        title: "Gamepad Tester",
+        description: "Check your gamepad or controller inputs in real time.",
+        link: "https://gamepad.jwd.me",
+      },
+      {
+        title: "Shrink - Image Resizer",
+        description:
+          "Shrink large images so they're small enough to upload to Discord or other sites.",
+        link: "https://shrink.jwd.me",
+      },
+      {
+        title: "Croppy - Square 640 Image Cropper",
+        description:
+          "Crop your images to a perfect square 640x640 format usable by Wan/ComfyUI.",
+        link: "https://jwd83.github.io/croppy/",
+      },
 
-      ];
+      // https://jwd83.github.io/mic-fft/
+      {
+        title: "Mic FFT Visualizer",
+        description:
+          "Visualize your microphone input in real-time using Fast Fourier Transform (FFT).",
+        link: "https://jwd83.github.io/mic-fft/",
+      },
+      // https://jwd83.github.io/cleaner/
+      {
+        title: "URL Cleaner",
+        description:
+          "Strip the tracking and extra crap off URLs to make them easier to share",
+        link: "https://jwd83.github.io/cleaner/",
+      },
+      // https://magneto.jwd.me/
+      {
+        title: ".torrent to Magnet Link",
+        description:
+          "Generate magnet links from torrent files for easy sharing and downloading.",
+        link: "https://magneto.jwd.me/",
+      },
 
-      // Generate tool cards dynamically
-      const toolsList = document.getElementById("tools-list");
-      tools.forEach((tool) => {
-        const card = document.createElement("div");
-        card.className = "tool-card";
+    ];
 
-        card.innerHTML = `
+    // Generate tool cards dynamically
+    const toolsList = document.getElementById("tools-list");
+    tools.forEach((tool) => {
+      const card = document.createElement("div");
+      card.className = "tool-card";
+
+      card.innerHTML = `
           <div class="tool-title">${tool.title}</div>
           <div class="tool-desc">${tool.description}</div>
           <a class="tool-link" href="${tool.link}" target="_blank" rel="noopener">Visit</a>
         `;
 
-        toolsList.appendChild(card);
-      });
-    </script>
-  </body>
+      toolsList.appendChild(card);
+    });
+  </script>
+</body>
+
 </html>
