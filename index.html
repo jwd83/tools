@@ -32,6 +32,15 @@
       background-clip: text;
     }
 
+    h2 {
+      font-size: 2.4rem;
+      letter-spacing: 1.8px;
+      background: linear-gradient(90deg, #00c6ff, #0072ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
     .tools-list {
       display: flex;
       flex-wrap: wrap;
@@ -127,6 +136,20 @@
       <!-- Tool cards will be generated here dynamically -->
     </div>
   </main>
+  <header>
+
+    <h2>Experimental</h2>
+    <p style="color: #bfc9d1; font-size: 1.15rem; margin-top: 10px">
+      The following projects are experimental and may not be fully stable.
+      Use at your own risk.
+    </p>
+  </header>
+  <main>
+
+    <div class="tools-list" id="experimental-tools-list">
+      <!-- Experimental tool cards will be generated here dynamically -->
+    </div>
+  </main>
   <footer>
     &copy; <span id="year"></span>
     <span style="color: #00c6ff"><a href="https://jwd.me">jwd.me</a> - <a
@@ -192,6 +215,15 @@
 
     ];
 
+    // Experimental tool list
+    const experimentalTools = [
+      {
+        title: "Pulse Logic Simulator",
+        description: "Simulate and visualize logic circuits in your browser.",
+        link: "https://jwd83.github.io/pulse/"
+      }
+    ];
+
     // Generate tool cards dynamically
     const toolsList = document.getElementById("tools-list");
     tools.forEach((tool) => {
@@ -205,6 +237,20 @@
         `;
 
       toolsList.appendChild(card);
+    });
+
+    const experimentalToolsList = document.getElementById("experimental-tools-list");
+    experimentalTools.forEach((tool) => {
+      const card = document.createElement("div");
+      card.className = "tool-card";
+
+      card.innerHTML = `
+          <div class="tool-title">${tool.title}</div>
+          <div class="tool-desc">${tool.description}</div>
+          <a class="tool-link" href="${tool.link}">Visit</a>
+        `;
+
+      experimentalToolsList.appendChild(card);
     });
   </script>
 </body>
