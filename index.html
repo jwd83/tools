@@ -25,6 +25,10 @@
       text-align: center;
     }
 
+    main {
+      width: min(1200px, 96vw);
+    }
+
     h1 {
       font-size: 2.8rem;
       letter-spacing: 2px;
@@ -49,6 +53,87 @@
       gap: 32px;
       justify-content: center;
       margin-bottom: 48px;
+    }
+
+    .tool-group {
+      margin-bottom: 22px;
+      background: rgba(30, 34, 40, 0.5);
+      border: 1.5px solid #2e3740;
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    .group-summary {
+      list-style: none;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 14px 18px;
+      cursor: pointer;
+      background: rgba(0, 198, 255, 0.08);
+      border-bottom: 1px solid rgba(46, 55, 64, 0.7);
+      user-select: none;
+    }
+
+    .group-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .group-name {
+      font-size: 1.2rem;
+      color: #d4e6f2;
+      font-weight: 600;
+      letter-spacing: 0.6px;
+      margin-right: auto;
+    }
+
+    .group-meta {
+      color: #8ca2b3;
+      font-size: 0.95rem;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+    }
+
+    .group-chevron {
+      color: #00c6ff;
+      font-size: 1rem;
+      margin-left: 4px;
+      transition: transform 0.18s;
+    }
+
+    .tool-group[open] .group-chevron {
+      transform: rotate(180deg);
+    }
+
+    .tool-group .tools-list {
+      padding: 16px 18px 0;
+      margin-bottom: 12px;
+    }
+
+    .group-controls {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .group-control-btn {
+      border: 1px solid #2e3740;
+      background: rgba(30, 34, 40, 0.9);
+      color: #d4e6f2;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: border-color 0.18s, color 0.18s, transform 0.18s;
+    }
+
+    .group-control-btn:hover {
+      border-color: #00c6ff;
+      color: #00c6ff;
+      transform: translateY(-1px);
     }
 
     .tool-card {
@@ -117,6 +202,10 @@
         gap: 20px;
       }
 
+      .tool-group .tools-list {
+        padding: 14px 10px 0;
+      }
+
       .tool-card {
         min-width: 0;
         width: 90vw;
@@ -134,8 +223,12 @@
     </p>
   </header>
   <main>
-    <div class="tools-list" id="tools-list">
-      <!-- Tool cards will be generated here dynamically -->
+    <div class="group-controls">
+      <button class="group-control-btn" id="expand-all" type="button">Expand all</button>
+      <button class="group-control-btn" id="collapse-all" type="button">Collapse all</button>
+    </div>
+    <div id="tools-groups">
+      <!-- Grouped tool cards will be generated here dynamically -->
     </div>
   </main>
   <header>
@@ -168,29 +261,34 @@
         description:
           "Test your speakers or headphones with left/right audio channels.",
         link: "https://leftright.jwd.me",
+        category: "Audio & Music",
       },
       {
         title: "Gamepad Tester",
         description: "Check your gamepad or controller inputs in real time.",
         link: "https://gamepad.jwd.me",
+        category: "Games & Input",
       },
       {
         title: "Shrink - Image Resizer",
         description:
           "Shrink large images so they're small enough to upload to Discord or other sites.",
         link: "https://shrink.jwd.me",
+        category: "Image & Media",
       },
       {
         title: "Blur - Image Blur/Blackout",
         description:
           "Blur or blackout sensitive/spoiler areas in images directly in your browser.",
         link: "https://blur.jwd.me/",
+        category: "Image & Media",
       },
       {
         title: "Croppy - Square 640 Image Cropper",
         description:
           "Crop your images to a perfect square 640x640 format usable by Wan/ComfyUI.",
         link: "https://jwd83.github.io/croppy/",
+        category: "Image & Media",
       },
 
       // https://jwd83.github.io/mic-fft/
@@ -199,6 +297,7 @@
         description:
           "Visualize your microphone input in real-time using Fast Fourier Transform (FFT).",
         link: "https://jwd83.github.io/mic-fft/",
+        category: "Audio & Music",
       },
       // https://jwd83.github.io/cleaner/
       {
@@ -206,6 +305,7 @@
         description:
           "Strip the tracking and extra crap off URLs to make them easier to share. Repo has chrome extension too.",
         link: "https://jwd83.github.io/cleaner/",
+        category: "Text & Utility",
       },
       // https://magneto.jwd.me/
       {
@@ -213,30 +313,35 @@
         description:
           "Generate magnet links from torrent files for easy sharing and downloading.",
         link: "https://magneto.jwd.me/",
+        category: "Text & Utility",
       },
       // https://jwd83.github.io/snake/
       {
         title: "Snake Game",
         description: "Classic Snake game you can play in your browser.",
         link: "https://jwd83.github.io/snake/",
+        category: "Games & Input",
       },
       // https://jwd83.github.io/githubpie/
       {
         title: "GitHubPie",
         description: "See a pie chart of a user's github language use.",
         link: "https://jwd83.github.io/githubpie/",
+        category: "Text & Utility",
       },
       // https://github.com/jwd83/qrl URL code to QR Code Link Generator
       {
         title: "QR Link Generator",
         description: "Chrome extension to locally/offline generate QR codes from URLs for easy sharing.",
-        link: "https://github.com/jwd83/qrl"
+        link: "https://github.com/jwd83/qrl",
+        category: "Image & Media",
       },
       // https://jwd83.github.io/pdfmerge/
       {
         title: "PDF Merge",
         description: "Merge multiple PDF files into a single document directly in your browser.",
-        link: "https://jwd83.github.io/pdfmerge/"
+        link: "https://jwd83.github.io/pdfmerge/",
+        category: "Image & Media",
       },
       // https://jwd83.github.io/chromatickeyboard/
       {
@@ -244,54 +349,63 @@
         description:
           "A virtual C major keyboard supporting 3 octaves. Bring your own sample!",
         link: "https://jwd83.github.io/chromatickeyboard/",
+        category: "Audio & Music",
       },
       // https://tuner.jwd.me/
       {
         title: "Chromatic Tuner",
         description: "Tune your guitar, violin, etc. using your device's microphone.",
         link: "https://tuner.jwd.me/",
+        category: "Audio & Music",
       },
       // https://xfer.jwd.me/
       {
         title: "Xfer - Simple file sharing!",
         description: "P2P Encrypted file sharing! No uploads, no tracking, no ads.",
         link: "https://xfer.jwd.me/",
+        category: "Text & Utility",
       },
       // https://jwd83.github.io/plyground/ in browser python repl
       {
         title: "Plyground - In browser Python REPL",
         description: "Run Python code directly in your browser with a REPL interface.",
-        link: "https://jwd83.github.io/plyground/"
+        link: "https://jwd83.github.io/plyground/",
+        category: "Text & Utility",
       },
       //https://hash.jwd.me/
       {
         title: "Hash Generator",
         description: "Generate various types of hashes ( SHA-256, SHA3 etc.) from your input file.",
-        link: "https://hash.jwd.me/"
+        link: "https://hash.jwd.me/",
+        category: "Text & Utility",
       },
       // https://md.jwd.me/
       {
         title: "Markdown Editor",
         description: "Basic in browser mark down editor with preview.",
-        link: "https://md.jwd.me/"
+        link: "https://md.jwd.me/",
+        category: "Text & Utility",
       },
       // https://bindiff.jwd.me/
       {
         title: "Bianry Differ",
         description: "A simple in browser binary diff tool.",
-        link: "https://bindiff.jwd.me/"
+        link: "https://bindiff.jwd.me/",
+        category: "Text & Utility",
       },
       // https://weather.jwd.me/
       {
         title: "Weather",
         description: "A simple weather app designed by GLM and GPT.",
-        link: "https://weather.jwd.me/"
+        link: "https://weather.jwd.me/",
+        category: "Misc",
       },
       // https://gridlines.jwd.me/
       {
         title: "Gridlines",
         description: "Make crochet and knitting pattern lines.",
-        link: "https://gridlines.jwd.me/"
+        link: "https://gridlines.jwd.me/",
+        category: "Misc",
       },
 
     ];
@@ -305,19 +419,68 @@
       }
     ];
 
-    // Generate tool cards dynamically
-    const toolsList = document.getElementById("tools-list");
-    tools.forEach((tool) => {
-      const card = document.createElement("div");
-      card.className = "tool-card";
+    // Generate grouped tool cards dynamically
+    const groupOrder = [
+      "Image & Media",
+      "Text & Utility",
+      "Audio & Music",
+      "Games & Input",
+      "Misc",
+    ];
 
-      card.innerHTML = `
+    const toolsGroupsContainer = document.getElementById("tools-groups");
+    const groupDetails = [];
+
+    groupOrder.forEach((groupName) => {
+      const groupTools = tools.filter((tool) => tool.category === groupName);
+      if (groupTools.length === 0) {
+        return;
+      }
+
+      const groupSection = document.createElement("details");
+      groupSection.className = "tool-group";
+      groupSection.open = true;
+
+      const groupSummary = document.createElement("summary");
+      groupSummary.className = "group-summary";
+      groupSummary.innerHTML = `
+        <span class="group-name">${groupName}</span>
+        <span class="group-meta">${groupTools.length} tools</span>
+        <span class="group-chevron" aria-hidden="true">▾</span>
+      `;
+      groupSection.appendChild(groupSummary);
+
+      const toolsList = document.createElement("div");
+      toolsList.className = "tools-list";
+
+      groupTools.forEach((tool) => {
+        const card = document.createElement("div");
+        card.className = "tool-card";
+
+        card.innerHTML = `
           <div class="tool-title">${tool.title}</div>
           <div class="tool-desc">${tool.description}</div>
           <a class="tool-link" href="${tool.link}">Visit</a>
         `;
 
-      toolsList.appendChild(card);
+        toolsList.appendChild(card);
+      });
+
+      groupSection.appendChild(toolsList);
+      toolsGroupsContainer.appendChild(groupSection);
+      groupDetails.push(groupSection);
+    });
+
+    document.getElementById("expand-all").addEventListener("click", () => {
+      groupDetails.forEach((group) => {
+        group.open = true;
+      });
+    });
+
+    document.getElementById("collapse-all").addEventListener("click", () => {
+      groupDetails.forEach((group) => {
+        group.open = false;
+      });
     });
 
     const experimentalToolsList = document.getElementById("experimental-tools-list");
