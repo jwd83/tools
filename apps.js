@@ -88,6 +88,7 @@ const tools = [
     title: "Chromatic Tuner",
     description: "Tune your guitar, violin, etc. using your device's microphone.",
     link: "https://tuner.jwd.me/",
+    blank: true,
     category: "Audio & Music",
   },
   {
