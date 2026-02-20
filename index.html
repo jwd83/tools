@@ -143,6 +143,28 @@
       gap: 6px;
     }
 
+    .menu-item-label {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .menu-item-shortcut {
+      margin-left: auto;
+      width: 14px;
+      height: 14px;
+      border: 1px solid currentColor;
+      border-radius: 2px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      line-height: 1;
+      flex-shrink: 0;
+      opacity: 0.85;
+    }
+
     .menu-dropdown-item img {
       width: 16px;
       height: 16px;
@@ -209,6 +231,7 @@
       border: 1px solid transparent;
       background: transparent;
       color: var(--text-dark);
+      position: relative;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -258,6 +281,28 @@
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.38);
       backdrop-filter: blur(3px);
       -webkit-backdrop-filter: blur(3px);
+    }
+
+    .desktop-icon.blank-launch::after {
+      content: "\2197";
+      position: absolute;
+      top: 10px;
+      right: calc((100% - var(--icon-size)) / 2 - 2px);
+      width: 17px;
+      height: 17px;
+      border: 2px solid #000;
+      border-radius: 3px;
+      background: #fff;
+      color: #000;
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.35);
+      pointer-events: none;
+      z-index: 1;
     }
 
     .window-layer {
@@ -769,6 +814,11 @@
     }
 
     function openToolWindow(tool) {
+      if (tool.blank) {
+        window.open(tool.link, "_blank", "noopener,noreferrer");
+        return;
+      }
+
       const windowId = `win-${tool.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
       const existing = windowMap.get(windowId);
       if (existing) {
@@ -833,6 +883,10 @@
       iconButton.type = "button";
       iconButton.className = "desktop-icon";
       iconButton.title = `${tool.title}\n${tool.description}`;
+      if (tool.blank) {
+        iconButton.classList.add("blank-launch");
+        iconButton.title = `${tool.title}\n${tool.description}\nOpens in a new tab`;
+      }
 
       const label = tool.title;
       iconButton.innerHTML = `
@@ -876,11 +930,22 @@
         const item = document.createElement("div");
         item.className = "menu-dropdown-item";
         const icon = document.createElement("img");
+        const label = document.createElement("span");
+        label.className = "menu-item-label";
+        label.textContent = tool.title;
         icon.src = fallbackIcon;
         icon.alt = "";
         resolveFavicon(tool.link).then((src) => { icon.src = src; });
         item.appendChild(icon);
-        item.appendChild(document.createTextNode(tool.title));
+        item.appendChild(label);
+        if (tool.blank) {
+          const shortcut = document.createElement("span");
+          shortcut.className = "menu-item-shortcut";
+          shortcut.textContent = "\u2197";
+          shortcut.setAttribute("aria-hidden", "true");
+          item.appendChild(shortcut);
+          item.title = `${tool.title} (opens in a new tab)`;
+        }
         item.addEventListener("click", (e) => {
           e.stopPropagation();
           openToolWindow(tool);
