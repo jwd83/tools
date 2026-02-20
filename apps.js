@@ -70,6 +70,7 @@ const tools = [
     title: "QR Link Generator",
     description: "Chrome extension to locally/offline generate QR codes from URLs for easy sharing.",
     link: "https://github.com/jwd83/qrl",
+    blank: true,
     category: "Image & Media",
   },
   {
