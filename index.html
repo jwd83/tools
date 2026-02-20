@@ -134,10 +134,20 @@
     }
 
     .menu-dropdown-item {
-      padding: 3px 16px;
+      padding: 3px 16px 3px 8px;
       cursor: default;
       white-space: nowrap;
       color: #000;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .menu-dropdown-item img {
+      width: 16px;
+      height: 16px;
+      object-fit: contain;
+      flex-shrink: 0;
     }
 
     .menu-dropdown-item:hover {
@@ -1012,7 +1022,12 @@
       categoryTools.forEach((tool) => {
         const item = document.createElement("div");
         item.className = "menu-dropdown-item";
-        item.textContent = tool.title;
+        const icon = document.createElement("img");
+        icon.src = fallbackIcon;
+        icon.alt = "";
+        resolveFavicon(tool.link).then((src) => { icon.src = src; });
+        item.appendChild(icon);
+        item.appendChild(document.createTextNode(tool.title));
         item.addEventListener("click", (e) => {
           e.stopPropagation();
           openToolWindow(tool);
