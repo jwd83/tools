@@ -197,18 +197,9 @@
     .desktop-icon img {
       width: var(--icon-size);
       height: var(--icon-size);
-      background: rgba(255, 255, 255, 0.75);
-      border: 2px solid #000;
-      padding: 6px;
       object-fit: contain;
-      box-shadow: inset 1px 1px #fff, 1px 1px 0 rgba(0, 0, 0, 0.15);
       pointer-events: none;
-      transition: box-shadow 0.1s;
-    }
-
-    .desktop-icon:hover img,
-    .desktop-icon:focus-visible img {
-      box-shadow: inset 1px 1px #fff, 2px 2px 0 rgba(0, 0, 0, 0.2);
+      filter: drop-shadow(3px 4px 5px rgba(0, 0, 0, 0.7));
     }
 
     .desktop-icon span {
