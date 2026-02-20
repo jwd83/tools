@@ -19,9 +19,6 @@
     :root {
       --panel-bg: #e5e5e5;
       --panel-border: #000;
-      --desktop-dark: #888;
-      --desktop-mid: #a9a9a9;
-      --desktop-light: #c4c4c4;
       --window-bg: #f1f1f1;
       --window-border: #000;
       --title-active-start: #f3f3f3;
@@ -393,8 +390,7 @@
       text-overflow: ellipsis;
       font-weight: 700;
       background: #efefef;
-      border-top: 2px solid #000;
-      border-bottom: 2px solid #000;
+      border-block: 2px solid #000;
       line-height: 1.3;
       padding: 0 8px;
       text-align: center;
@@ -540,6 +536,7 @@
   <script src="apps.js"></script>
   <script>
 
+    const desktop = document.getElementById("desktop");
     const desktopIcons = document.getElementById("desktop-icons");
     const windowLayer = document.getElementById("window-layer");
     const panelClock = document.getElementById("panel-clock");
@@ -583,20 +580,19 @@
     }
 
     function faviconCandidates(url) {
-      const { hostname: host, origin, pathname } = new URL(url);
-      const path = pathname.endsWith("/") ? pathname : `${pathname}/`;
-      const projectBase = `${origin}${path}`;
+      const { hostname, origin } = new URL(url);
+      const scope = faviconScope(url);
 
       return [...new Set([
-        `${projectBase}favicon.svg`,
-        `${projectBase}favicon.ico`,
-        `${projectBase}favicon.png`,
+        `${scope}favicon.svg`,
+        `${scope}favicon.ico`,
+        `${scope}favicon.png`,
         `${origin}/favicon.svg`,
         `${origin}/favicon.ico`,
         `${origin}/favicon.png`,
         `${origin}/apple-touch-icon.png`,
-        `https://icons.duckduckgo.com/ip3/${host}.ico`,
-        `https://www.google.com/s2/favicons?domain=${host}&sz=128`,
+        `https://icons.duckduckgo.com/ip3/${hostname}.ico`,
+        `https://www.google.com/s2/favicons?domain=${hostname}&sz=128`,
       ])];
     }
 
@@ -622,11 +618,7 @@
       }
 
       if (faviconRuntimeCache.has(scope)) {
-        const runtimeIcon = faviconRuntimeCache.get(scope);
-        if (runtimeIcon && runtimeIcon !== fallbackIcon) {
-          return Promise.resolve(runtimeIcon);
-        }
-        faviconRuntimeCache.delete(scope);
+        return Promise.resolve(faviconRuntimeCache.get(scope));
       }
 
       if (faviconPromiseCache.has(scope)) {
@@ -672,7 +664,7 @@
     function applyResolvedFavicon(imageEl, toolUrl) {
       imageEl.src = fallbackIcon;
       resolveFavicon(toolUrl).then((iconUrl) => {
-        imageEl.src = iconUrl || fallbackIcon;
+        imageEl.src = iconUrl;
       });
     }
 
@@ -693,14 +685,13 @@
 
     function setActiveWindow(windowId) {
       windowMap.forEach((entry, id) => {
-        const isActive = id === windowId;
-        entry.window.classList.toggle("inactive", !isActive);
+        entry.window.classList.toggle("inactive", id !== windowId);
       });
 
       const active = windowMap.get(windowId);
       if (active) {
         topZIndex += 1;
-        active.window.style.zIndex = String(topZIndex);
+        active.window.style.zIndex = topZIndex;
       }
     }
 
@@ -728,7 +719,7 @@
           return;
         }
 
-        const desktopRect = document.getElementById("desktop").getBoundingClientRect();
+        const desktopRect = desktop.getBoundingClientRect();
         const maxLeft = desktopRect.width - windowEl.offsetWidth;
         const maxTop = desktopRect.height - windowEl.offsetHeight;
         const left = Math.min(Math.max(0, event.clientX - dragState.offsetX), Math.max(0, maxLeft));
@@ -749,7 +740,7 @@
         }
 
         const rect = windowEl.getBoundingClientRect();
-        const desktopRect = document.getElementById("desktop").getBoundingClientRect();
+        const desktopRect = desktop.getBoundingClientRect();
         dragState = {
           offsetX: event.clientX - rect.left,
           offsetY: event.clientY - rect.top,
@@ -769,7 +760,7 @@
           return;
         }
 
-        const desktopRect = document.getElementById("desktop").getBoundingClientRect();
+        const desktopRect = desktop.getBoundingClientRect();
         const maxWidth = desktopRect.width - resizeState.left;
         const maxHeight = desktopRect.height - resizeState.top;
         if (resizeState.mode === "right" || resizeState.mode === "corner") {
@@ -794,7 +785,7 @@
           event.preventDefault();
           event.stopPropagation();
           const rect = windowEl.getBoundingClientRect();
-          const desktopRect = document.getElementById("desktop").getBoundingClientRect();
+          const desktopRect = desktop.getBoundingClientRect();
           windowEl.style.width = `${rect.width}px`;
           windowEl.style.height = `${rect.height}px`;
           resizeState = {
@@ -888,10 +879,9 @@
         iconButton.title = `${tool.title}\n${tool.description}\nOpens in a new tab`;
       }
 
-      const label = tool.title;
       iconButton.innerHTML = `
         <img src="${fallbackIcon}" alt="${tool.title} favicon" loading="lazy" />
-        <span>${label}</span>
+        <span>${tool.title}</span>
       `;
 
       const image = iconButton.querySelector("img");
@@ -916,16 +906,16 @@
       desktopIcons.appendChild(iconButton);
     }
 
-    tools.forEach((tool) => createDesktopIcon(tool));
+    tools.forEach(createDesktopIcon);
     updateClock();
     setInterval(updateClock, 1000);
 
-    // Populate menu dropdowns
     document.querySelectorAll(".menu-item[data-category]").forEach((menuItem) => {
       const category = menuItem.dataset.category;
       const dropdown = menuItem.querySelector(".menu-dropdown");
-      const categoryTools = tools.filter((t) => t.category === category);
-      categoryTools.sort((a, b) => a.title.localeCompare(b.title));
+      const categoryTools = tools
+        .filter((t) => t.category === category)
+        .sort((a, b) => a.title.localeCompare(b.title));
       categoryTools.forEach((tool) => {
         const item = document.createElement("div");
         item.className = "menu-dropdown-item";
