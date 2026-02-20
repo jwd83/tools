@@ -4,262 +4,458 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Jared's Tools</title>
+  <title>Jared's Tools Desktop</title>
   <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
   <link rel="shortcut icon" href="./favicon.svg" />
   <style>
+    :root {
+      --panel-bg: #d6dadf;
+      --panel-border: #7f868f;
+      --desktop-dark: #0d4656;
+      --desktop-mid: #1c7080;
+      --desktop-light: #4ca5af;
+      --window-bg: #f2f3f6;
+      --window-border: #7b828b;
+      --title-active-start: #2c5f9d;
+      --title-active-end: #739ecf;
+      --title-inactive-start: #6d7480;
+      --title-inactive-end: #9ca2ab;
+      --text-dark: #1f252b;
+      --text-light: #f5f7fb;
+      --shadow: rgba(0, 0, 0, 0.32);
+      --icon-size: 58px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
     body {
-      background: linear-gradient(135deg, #232526 0%, #414345 100%);
-      color: #f3f3f3;
-      font-family: "Segoe UI", "Arial", sans-serif;
       margin: 0;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    header {
-      margin-top: 48px;
-      margin-bottom: 32px;
-      text-align: center;
-    }
-
-    main {
-      width: min(1200px, 96vw);
-    }
-
-    h1 {
-      font-size: 2.8rem;
-      letter-spacing: 2px;
-      background: linear-gradient(90deg, #00c6ff, #0072ff);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    h2 {
-      font-size: 2.4rem;
-      letter-spacing: 1.8px;
-      background: linear-gradient(90deg, #00c6ff, #0072ff);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .tools-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 32px;
-      justify-content: center;
-      margin-bottom: 48px;
-    }
-
-    .tool-group {
-      margin-bottom: 22px;
-      background: rgba(30, 34, 40, 0.5);
-      border: 1.5px solid #2e3740;
-      border-radius: 14px;
+      width: 100%;
+      height: 100%;
+      font-family: "Tahoma", "Liberation Sans", sans-serif;
+      color: var(--text-dark);
       overflow: hidden;
-    }
-
-    .group-summary {
-      list-style: none;
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 10px;
-      padding: 14px 18px;
-      cursor: pointer;
-      background: rgba(0, 198, 255, 0.08);
-      border-bottom: 1px solid rgba(46, 55, 64, 0.7);
       user-select: none;
     }
 
-    .group-summary::-webkit-details-marker {
-      display: none;
+    body {
+      background:
+        radial-gradient(circle at 15% 20%, rgba(255, 255, 255, 0.12), transparent 24%),
+        radial-gradient(circle at 80% 15%, rgba(255, 255, 255, 0.1), transparent 30%),
+        radial-gradient(circle at 50% 80%, rgba(0, 0, 0, 0.22), transparent 35%),
+        linear-gradient(140deg, var(--desktop-dark) 0%, var(--desktop-mid) 45%, var(--desktop-light) 100%);
+      position: relative;
     }
 
-    .group-name {
-      font-size: 1.2rem;
-      color: #d4e6f2;
-      font-weight: 600;
-      letter-spacing: 0.6px;
-      margin-right: auto;
+    body::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 4px 4px;
+      mix-blend-mode: soft-light;
     }
 
-    .group-meta {
-      color: #8ca2b3;
-      font-size: 0.95rem;
-      letter-spacing: 0.4px;
-      text-transform: uppercase;
+    #desktop-shell {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: grid;
+      grid-template-rows: 33px 1fr 40px;
+      z-index: 1;
     }
 
-    .group-chevron {
-      color: #00c6ff;
-      font-size: 1rem;
-      margin-left: 4px;
-      transition: transform 0.18s;
-    }
-
-    .tool-group[open] .group-chevron {
-      transform: rotate(180deg);
-    }
-
-    .tool-group .tools-list {
-      padding: 16px 18px 0;
-      margin-bottom: 12px;
-    }
-
-    .group-controls {
+    .panel {
+      border: 1px solid var(--panel-border);
+      background: linear-gradient(#eceff3, var(--panel-bg));
+      box-shadow: inset 0 1px rgba(255, 255, 255, 0.85);
       display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 12px;
-      margin-bottom: 24px;
+      align-items: center;
+      padding: 0 8px;
+      gap: 10px;
+      font-size: 13px;
     }
 
-    .group-control-btn {
-      border: 1px solid #2e3740;
-      background: rgba(30, 34, 40, 0.9);
-      color: #d4e6f2;
-      border-radius: 8px;
-      padding: 8px 14px;
-      font-size: 0.95rem;
+    .panel-top {
+      border-left: 0;
+      border-right: 0;
+      border-top: 0;
+    }
+
+    .panel-menu {
+      display: flex;
+      gap: 2px;
+    }
+
+    .menu-item {
+      border: 1px solid transparent;
+      border-radius: 2px;
+      padding: 4px 8px;
+      cursor: default;
+    }
+
+    .menu-item:hover {
+      border-color: #99a7b6;
+      background: rgba(255, 255, 255, 0.6);
+    }
+
+    .panel-title {
+      margin-left: auto;
+      margin-right: auto;
+      color: #2a3038;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-align: center;
+      max-width: 45%;
+    }
+
+    .panel-clock {
+      min-width: 160px;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      color: #17212c;
+      font-weight: 700;
+    }
+
+    #desktop {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      padding: 18px;
+    }
+
+    .desktop-icons {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 16px 10px;
+      max-width: 720px;
+      pointer-events: auto;
+    }
+
+    .desktop-icon {
+      width: 100px;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--text-light);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.65);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 6px;
+      cursor: default;
+      outline: none;
+    }
+
+    .desktop-icon:hover,
+    .desktop-icon:focus-visible {
+      border-color: rgba(201, 224, 255, 0.8);
+      background: rgba(40, 84, 120, 0.4);
+    }
+
+    .desktop-icon img {
+      width: var(--icon-size);
+      height: var(--icon-size);
+      border-radius: 12px;
+      background: rgba(15, 35, 47, 0.72);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 8px;
+      object-fit: contain;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.28);
+      pointer-events: none;
+    }
+
+    .desktop-icon span {
+      text-align: center;
+      font-size: 12px;
+      line-height: 1.25;
+      width: 100%;
+      word-break: break-word;
+    }
+
+    .window-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .app-window {
+      position: absolute;
+      width: min(540px, calc(100vw - 48px));
+      height: min(400px, calc(100vh - 130px));
+      min-width: 320px;
+      min-height: 220px;
+      border: 1px solid var(--window-border);
+      background: var(--window-bg);
+      box-shadow: 0 8px 20px var(--shadow);
+      display: grid;
+      grid-template-rows: 30px 1fr;
+      overflow: hidden;
+      pointer-events: auto;
+    }
+
+    .app-window.inactive .window-titlebar {
+      background: linear-gradient(var(--title-inactive-start), var(--title-inactive-end));
+    }
+
+    .window-titlebar {
+      background: linear-gradient(var(--title-active-start), var(--title-active-end));
+      color: #f8fbff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 6px;
+      font-size: 12px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+      cursor: move;
+    }
+
+    .title-icon {
+      width: 16px;
+      height: 16px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.35);
+      object-fit: contain;
+      flex: 0 0 auto;
+    }
+
+    .window-title {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+
+    .window-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-left: auto;
+    }
+
+    .win-btn {
+      width: 18px;
+      height: 18px;
+      border: 1px solid rgba(0, 0, 0, 0.55);
+      background: linear-gradient(#fbfcfe, #d0d5de);
+      color: #111;
+      font-size: 10px;
+      line-height: 1;
+      border-radius: 2px;
+      padding: 0;
       cursor: pointer;
-      transition: border-color 0.18s, color 0.18s, transform 0.18s;
+      display: grid;
+      place-items: center;
     }
 
-    .group-control-btn:hover {
-      border-color: #00c6ff;
-      color: #00c6ff;
-      transform: translateY(-1px);
+    .win-btn:hover {
+      background: linear-gradient(#ffffff, #e4e8ee);
     }
 
-    .tool-card {
-      background: rgba(30, 34, 40, 0.95);
-      border-radius: 16px;
-      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.18);
-      padding: 32px 28px 24px 28px;
-      min-width: 240px;
-      max-width: 320px;
-      transition: transform 0.18s, box-shadow 0.18s;
-      text-align: center;
-      border: 1.5px solid #2e3740;
+    .window-content {
+      position: relative;
+      background: #f8f9fb;
     }
 
-    .tool-card:hover {
-      transform: translateY(-6px) scale(1.03);
-      box-shadow: 0 8px 32px rgba(0, 198, 255, 0.18);
-      border-color: #00c6ff;
+    .window-content iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: #fff;
     }
 
-    .tool-title {
-      font-size: 1.3rem;
-      margin-bottom: 10px;
-      color: #00c6ff;
+    .window-resizer {
+      position: absolute;
+      z-index: 6;
+      touch-action: none;
     }
 
-    .tool-desc {
-      font-size: 1rem;
-      color: #bfc9d1;
-      margin-bottom: 18px;
+    .window-resizer-right {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 14px;
+      bottom: 0;
+      cursor: ew-resize;
     }
 
-    .tool-link {
-      display: inline-block;
-      padding: 8px 20px;
-      background: linear-gradient(90deg, #00c6ff, #0072ff);
-      color: #fff;
-      border-radius: 8px;
+    .window-resizer-bottom {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 14px;
+      cursor: ns-resize;
+    }
+
+    .window-resizer-corner {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      width: 28px;
+      height: 28px;
+      cursor: nwse-resize;
+      border-top: 1px solid #8f97a2;
+      border-left: 1px solid #8f97a2;
+      background:
+        repeating-linear-gradient(
+          135deg,
+          #d8dde6 0 3px,
+          #a7b0bd 3px 6px
+        );
+      box-shadow: inset 1px 1px rgba(255, 255, 255, 0.75);
+      z-index: 7;
+    }
+
+    .panel-bottom {
+      border-left: 0;
+      border-right: 0;
+      border-bottom: 0;
+      gap: 8px;
+      padding: 4px 8px;
+    }
+
+    .start-button {
+      border: 1px solid #747f89;
+      border-radius: 3px;
+      background: linear-gradient(#f5f8fb, #ced4de);
+      padding: 4px 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 13px;
+      font-weight: 700;
+      min-width: 96px;
+    }
+
+    .start-button img {
+      width: 14px;
+      height: 14px;
+      object-fit: contain;
+    }
+
+    .task-buttons {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      scrollbar-width: thin;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .task-button {
+      border: 1px solid #7d8894;
+      border-radius: 3px;
+      background: linear-gradient(#eff3f8, #d8dfe8);
+      color: #1f252d;
+      font-size: 12px;
+      padding: 4px 9px;
+      max-width: 210px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .task-button.active {
+      background: linear-gradient(#dae6f9, #c0d1ef);
+      border-color: #5e77a0;
+    }
+
+    .desktop-credit {
+      font-size: 12px;
+      color: #20272f;
+      white-space: nowrap;
+    }
+
+    .desktop-credit a {
+      color: #1c4e8f;
       text-decoration: none;
-      font-weight: 600;
-      letter-spacing: 1px;
-      transition: background 0.18s, color 0.18s;
     }
 
-    .tool-link:hover {
-      background: linear-gradient(90deg, #0072ff, #00c6ff);
-      color: #232526;
-    }
-
-    footer {
-      margin-top: auto;
-      padding: 24px 0 12px 0;
-      color: #7a8a99;
-      font-size: 0.98rem;
-      text-align: center;
-    }
-
-    a {
-      color: #00c6ff;
-      text-decoration: none;
-    }
-
-    @media (max-width: 700px) {
-      .tools-list {
-        flex-direction: column;
-        gap: 20px;
+    @media (max-width: 900px) {
+      #desktop-shell {
+        grid-template-rows: 33px 1fr 48px;
       }
 
-      .tool-group .tools-list {
-        padding: 14px 10px 0;
+      .panel-title {
+        display: none;
       }
 
-      .tool-card {
-        min-width: 0;
-        width: 90vw;
-        max-width: 98vw;
+      .panel-clock {
+        min-width: 104px;
+        font-size: 12px;
+      }
+
+      .desktop-icons {
+        grid-template-columns: repeat(auto-fill, minmax(86px, 1fr));
+        max-width: none;
+      }
+
+      .desktop-icon {
+        width: auto;
+      }
+
+      .app-window {
+        width: min(96vw, 520px);
+        height: min(56vh, 400px);
+      }
+
+      .desktop-credit {
+        display: none;
       }
     }
   </style>
 </head>
 
 <body>
-  <header>
-    <h1>Jared's Tools</h1>
-    <p style="color: #bfc9d1; font-size: 1.15rem; margin-top: 10px">
-      A collection of my handy tools and experiments
-    </p>
-  </header>
-  <main>
-    <div class="group-controls">
-      <button class="group-control-btn" id="expand-all" type="button">Expand all</button>
-      <button class="group-control-btn" id="collapse-all" type="button">Collapse all</button>
-    </div>
-    <div id="tools-groups">
-      <!-- Grouped tool cards will be generated here dynamically -->
-    </div>
-  </main>
-  <header>
+  <div id="desktop-shell">
+    <header class="panel panel-top" role="banner">
+      <div class="panel-menu" aria-label="Menu strip">
+        <span class="menu-item">Applications</span>
+        <span class="menu-item">Places</span>
+        <span class="menu-item">System</span>
+      </div>
+      <div class="panel-title">Jared's Tools Desktop</div>
+      <div class="panel-clock" id="panel-clock" aria-live="polite"></div>
+    </header>
 
-    <h2>Experimental</h2>
-    <p style="color: #bfc9d1; font-size: 1.15rem; margin-top: 10px">
-      The following projects are experimental and may not be fully stable.
-      Use at your own risk.
-    </p>
-  </header>
-  <main>
+    <main id="desktop">
+      <section class="desktop-icons" id="desktop-icons" aria-label="Desktop icons"></section>
+      <section class="window-layer" id="window-layer" aria-label="Open windows"></section>
+    </main>
 
-    <div class="tools-list" id="experimental-tools-list">
-      <!-- Experimental tool cards will be generated here dynamically -->
-    </div>
-  </main>
-  <footer>
-    &copy; <span id="year"></span>
-    <span style="color: #00c6ff"><a href="https://jwd.me">jwd.me</a> - <a
-        href="https://github.com/jwd83/tools">view source</a></span>
-  </footer>
+    <footer class="panel panel-bottom">
+      <button class="start-button" type="button" aria-label="Launcher">
+        <img src="./favicon.svg" alt="" />
+        <span>Tools</span>
+      </button>
+      <div class="task-buttons" id="task-buttons" aria-label="Open window buttons"></div>
+      <div class="desktop-credit">
+        <a href="https://jwd.me">jwd.me</a> |
+        <a href="https://github.com/jwd83/tools">source</a>
+      </div>
+    </footer>
+  </div>
+
   <script>
-    // Set current year in footer
-    document.getElementById("year").textContent = new Date().getFullYear();
-
-    // Define tools dynamically
     const tools = [
       {
         title: "LeftRight Audio Test",
-        description:
-          "Test your speakers or headphones with left/right audio channels.",
+        description: "Test your speakers or headphones with left/right audio channels.",
         link: "https://leftright.jwd.me",
         category: "Audio & Music",
       },
@@ -271,245 +467,509 @@
       },
       {
         title: "Shrink - Image Resizer",
-        description:
-          "Shrink large images so they're small enough to upload to Discord or other sites.",
+        description: "Shrink large images so they are small enough to upload to Discord or other sites.",
         link: "https://shrink.jwd.me",
         category: "Image & Media",
       },
       {
         title: "Blur - Image Blur/Blackout",
-        description:
-          "Blur or blackout sensitive/spoiler areas in images directly in your browser.",
+        description: "Blur or blackout sensitive/spoiler areas in images directly in your browser.",
         link: "https://blur.jwd.me/",
         category: "Image & Media",
       },
       {
         title: "Croppy - Square 640 Image Cropper",
-        description:
-          "Crop your images to a perfect square 640x640 format usable by Wan/ComfyUI.",
+        description: "Crop your images to a perfect square 640x640 format usable by Wan/ComfyUI.",
         link: "https://jwd83.github.io/croppy/",
         category: "Image & Media",
       },
-
-      // https://jwd83.github.io/mic-fft/
       {
         title: "Mic FFT Visualizer",
-        description:
-          "Visualize your microphone input in real-time using Fast Fourier Transform (FFT).",
+        description: "Visualize your microphone input in real-time using Fast Fourier Transform (FFT).",
         link: "https://jwd83.github.io/mic-fft/",
         category: "Audio & Music",
       },
-      // https://jwd83.github.io/cleaner/
       {
         title: "URL Cleaner",
-        description:
-          "Strip the tracking and extra crap off URLs to make them easier to share. Repo has chrome extension too.",
+        description: "Strip tracking and extra noise from URLs to make them easier to share.",
         link: "https://jwd83.github.io/cleaner/",
         category: "Text & Utility",
       },
-      // https://ping.jwd.me/
       {
         title: "Ping Test",
         description: "Test ping and latency to check your connection quickly.",
         link: "https://ping.jwd.me/",
         category: "Text & Utility",
       },
-      // https://magneto.jwd.me/
       {
         title: ".torrent to Magnet Link",
-        description:
-          "Generate magnet links from torrent files for easy sharing and downloading.",
+        description: "Generate magnet links from torrent files for easy sharing and downloading.",
         link: "https://magneto.jwd.me/",
         category: "Text & Utility",
       },
-      // https://jwd83.github.io/snake/
       {
         title: "Snake Game",
         description: "Classic Snake game you can play in your browser.",
         link: "https://jwd83.github.io/snake/",
         category: "Games & Input",
       },
-      // https://jwd83.github.io/githubpie/
       {
         title: "GitHubPie",
         description: "See a pie chart of a user's github language use.",
         link: "https://jwd83.github.io/githubpie/",
         category: "Text & Utility",
       },
-      // https://github.com/jwd83/qrl URL code to QR Code Link Generator
       {
         title: "QR Link Generator",
         description: "Chrome extension to locally/offline generate QR codes from URLs for easy sharing.",
         link: "https://github.com/jwd83/qrl",
         category: "Image & Media",
       },
-      // https://jwd83.github.io/pdfmerge/
       {
         title: "PDF Merge",
         description: "Merge multiple PDF files into a single document directly in your browser.",
         link: "https://jwd83.github.io/pdfmerge/",
         category: "Image & Media",
       },
-      // https://jwd83.github.io/chromatickeyboard/
       {
         title: "Chromatic Keyboard",
-        description:
-          "A virtual C major keyboard supporting 3 octaves. Bring your own sample!",
+        description: "A virtual C major keyboard supporting 3 octaves. Bring your own sample!",
         link: "https://jwd83.github.io/chromatickeyboard/",
         category: "Audio & Music",
       },
-      // https://tuner.jwd.me/
       {
         title: "Chromatic Tuner",
         description: "Tune your guitar, violin, etc. using your device's microphone.",
         link: "https://tuner.jwd.me/",
         category: "Audio & Music",
       },
-      // https://xfer.jwd.me/
       {
         title: "Xfer - Simple file sharing!",
-        description: "P2P Encrypted file sharing! No uploads, no tracking, no ads.",
+        description: "P2P encrypted file sharing with no uploads, no tracking, and no ads.",
         link: "https://xfer.jwd.me/",
         category: "Text & Utility",
       },
-      // https://jwd83.github.io/plyground/ in browser python repl
       {
         title: "Plyground - In browser Python REPL",
         description: "Run Python code directly in your browser with a REPL interface.",
         link: "https://jwd83.github.io/plyground/",
         category: "Text & Utility",
       },
-      //https://hash.jwd.me/
       {
         title: "Hash Generator",
-        description: "Generate various types of hashes ( SHA-256, SHA3 etc.) from your input file.",
+        description: "Generate various types of hashes (SHA-256, SHA3, etc.) from your input file.",
         link: "https://hash.jwd.me/",
         category: "Text & Utility",
       },
-      // https://md.jwd.me/
       {
         title: "Markdown Editor",
-        description: "Basic in browser mark down editor with preview.",
+        description: "Basic in-browser markdown editor with preview.",
         link: "https://md.jwd.me/",
         category: "Text & Utility",
       },
-      // https://bindiff.jwd.me/
       {
         title: "Bianry Differ",
-        description: "A simple in browser binary diff tool.",
+        description: "A simple in-browser binary diff tool.",
         link: "https://bindiff.jwd.me/",
         category: "Text & Utility",
       },
-      // https://weather.jwd.me/
       {
         title: "Weather",
         description: "A simple weather app designed by GLM and GPT.",
         link: "https://weather.jwd.me/",
         category: "Misc",
       },
-      // https://gridlines.jwd.me/
       {
         title: "Gridlines",
         description: "Make crochet and knitting pattern lines.",
         link: "https://gridlines.jwd.me/",
         category: "Misc",
       },
-      // https://favicon.jwd.me/
       {
         title: "Emoji Favicon Generator",
         description: "Generate a favicon from any emoji in your browser.",
         link: "https://favicon.jwd.me/",
         category: "Image & Media",
       },
-
     ];
 
-    // Experimental tool list
-    const experimentalTools = [
-      {
-        title: "Pulse Logic Simulator",
-        description: "Simulate and visualize logic circuits in your browser.",
-        link: "https://jwd83.github.io/pulse/"
+    const experimentalTools = [];
+
+    const allTools = [
+      ...tools.map((tool) => ({ ...tool, experimental: false })),
+      ...experimentalTools.map((tool) => ({ ...tool, category: "Experimental", experimental: true })),
+    ];
+
+    const desktopIcons = document.getElementById("desktop-icons");
+    const windowLayer = document.getElementById("window-layer");
+    const taskButtons = document.getElementById("task-buttons");
+    const panelClock = document.getElementById("panel-clock");
+    const fallbackIcon = "./favicon.svg";
+    let topZIndex = 30;
+    let openCount = 0;
+    const windowMap = new Map();
+    const faviconRuntimeCache = new Map();
+    const faviconPromiseCache = new Map();
+
+    function faviconCacheKey(hostname) {
+      return `tools:favicon:${hostname}`;
+    }
+
+    function getCachedFavicon(hostname) {
+      try {
+        return localStorage.getItem(faviconCacheKey(hostname));
+      } catch {
+        return null;
       }
-    ];
+    }
 
-    // Generate grouped tool cards dynamically
-    const groupOrder = [
-      "Image & Media",
-      "Text & Utility",
-      "Audio & Music",
-      "Games & Input",
-      "Misc",
-    ];
+    function setCachedFavicon(hostname, iconUrl) {
+      try {
+        localStorage.setItem(faviconCacheKey(hostname), iconUrl);
+      } catch {
+      }
+    }
 
-    const toolsGroupsContainer = document.getElementById("tools-groups");
-    const groupDetails = [];
+    function faviconCandidates(url) {
+      const parsed = new URL(url);
+      const host = parsed.hostname;
+      const origin = parsed.origin;
+      return [
+        `${origin}/favicon.ico`,
+        `${origin}/favicon.svg`,
+        `${origin}/favicon.png`,
+        `${origin}/apple-touch-icon.png`,
+        `https://icons.duckduckgo.com/ip3/${host}.ico`,
+        `https://www.google.com/s2/favicons?domain=${host}&sz=128`,
+      ];
+    }
 
-    groupOrder.forEach((groupName) => {
-      const groupTools = tools.filter((tool) => tool.category === groupName);
-      if (groupTools.length === 0) {
+    function preloadImage(url) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.decoding = "async";
+        img.referrerPolicy = "no-referrer";
+        img.onload = () => resolve(url);
+        img.onerror = () => reject(new Error(`Icon load failed: ${url}`));
+        img.src = url;
+      });
+    }
+
+    function resolveFavicon(url) {
+      let hostname = "";
+      try {
+        hostname = new URL(url).hostname;
+      } catch {
+        return Promise.resolve(fallbackIcon);
+      }
+
+      if (faviconRuntimeCache.has(hostname)) {
+        return Promise.resolve(faviconRuntimeCache.get(hostname));
+      }
+
+      if (faviconPromiseCache.has(hostname)) {
+        return faviconPromiseCache.get(hostname);
+      }
+
+      const cachedIcon = getCachedFavicon(hostname);
+      if (cachedIcon) {
+        faviconRuntimeCache.set(hostname, cachedIcon);
+        return Promise.resolve(cachedIcon);
+      }
+
+      const pendingResolution = (async () => {
+        const candidates = faviconCandidates(url);
+        for (const iconUrl of candidates) {
+          try {
+            await preloadImage(iconUrl);
+            faviconRuntimeCache.set(hostname, iconUrl);
+            setCachedFavicon(hostname, iconUrl);
+            return iconUrl;
+          } catch {
+          }
+        }
+        faviconRuntimeCache.set(hostname, fallbackIcon);
+        return fallbackIcon;
+      })();
+
+      faviconPromiseCache.set(hostname, pendingResolution);
+      pendingResolution.finally(() => {
+        faviconPromiseCache.delete(hostname);
+      });
+
+      return pendingResolution;
+    }
+
+    function applyResolvedFavicon(imageEl, toolUrl) {
+      imageEl.src = fallbackIcon;
+      resolveFavicon(toolUrl).then((iconUrl) => {
+        imageEl.src = iconUrl || fallbackIcon;
+      });
+    }
+
+    function updateClock() {
+      const now = new Date();
+      const clock = now.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
+      const day = now.toLocaleDateString([], {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+      });
+      panelClock.textContent = `${day} ${clock}`;
+    }
+
+    function setActiveWindow(windowId) {
+      windowMap.forEach((entry, id) => {
+        const isActive = id === windowId;
+        entry.window.classList.toggle("inactive", !isActive);
+        entry.taskButton.classList.toggle("active", isActive);
+      });
+
+      const active = windowMap.get(windowId);
+      if (active) {
+        topZIndex += 1;
+        active.window.style.zIndex = String(topZIndex);
+      }
+    }
+
+    function removeWindow(windowId) {
+      const entry = windowMap.get(windowId);
+      if (!entry) {
         return;
       }
 
-      const groupSection = document.createElement("details");
-      groupSection.className = "tool-group";
-      groupSection.open = true;
+      entry.window.remove();
+      entry.taskButton.remove();
+      windowMap.delete(windowId);
 
-      const groupSummary = document.createElement("summary");
-      groupSummary.className = "group-summary";
-      groupSummary.innerHTML = `
-        <span class="group-name">${groupName}</span>
-        <span class="group-meta">${groupTools.length} tools</span>
-        <span class="group-chevron" aria-hidden="true">▾</span>
+      const newest = [...windowMap.values()]
+        .sort((a, b) => Number(b.window.style.zIndex || 0) - Number(a.window.style.zIndex || 0))[0];
+      if (newest) {
+        setActiveWindow(newest.id);
+      }
+    }
+
+    function toggleMinimize(windowId) {
+      const entry = windowMap.get(windowId);
+      if (!entry) {
+        return;
+      }
+
+      const isHidden = entry.window.style.display === "none";
+      entry.window.style.display = isHidden ? "grid" : "none";
+      if (isHidden) {
+        setActiveWindow(windowId);
+      } else {
+        entry.taskButton.classList.remove("active");
+      }
+    }
+
+    function attachDrag(windowEl, dragHandle) {
+      let dragState = null;
+
+      const onPointerMove = (event) => {
+        if (!dragState) {
+          return;
+        }
+
+        const desktopRect = document.getElementById("desktop").getBoundingClientRect();
+        const maxLeft = desktopRect.width - windowEl.offsetWidth;
+        const maxTop = desktopRect.height - windowEl.offsetHeight;
+        const left = Math.min(Math.max(0, event.clientX - dragState.offsetX), Math.max(0, maxLeft));
+        const top = Math.min(Math.max(0, event.clientY - desktopRect.top - dragState.offsetY), Math.max(0, maxTop));
+        windowEl.style.left = `${left}px`;
+        windowEl.style.top = `${top}px`;
+      };
+
+      const onPointerUp = () => {
+        dragState = null;
+        document.removeEventListener("pointermove", onPointerMove);
+        document.removeEventListener("pointerup", onPointerUp);
+      };
+
+      dragHandle.addEventListener("pointerdown", (event) => {
+        if (event.target.closest(".win-btn")) {
+          return;
+        }
+
+        const rect = windowEl.getBoundingClientRect();
+        const desktopRect = document.getElementById("desktop").getBoundingClientRect();
+        dragState = {
+          offsetX: event.clientX - rect.left,
+          offsetY: event.clientY - rect.top,
+        };
+        setActiveWindow(windowEl.dataset.windowId);
+        document.addEventListener("pointermove", onPointerMove);
+        document.addEventListener("pointerup", onPointerUp);
+
+        const currentTop = rect.top - desktopRect.top;
+        windowEl.style.top = `${currentTop}px`;
+      });
+    }
+
+    function attachResize(windowEl, resizeHandles) {
+      let resizeState = null;
+
+      const onPointerMove = (event) => {
+        if (!resizeState) {
+          return;
+        }
+
+        const desktopRect = document.getElementById("desktop").getBoundingClientRect();
+        const maxWidth = desktopRect.width - resizeState.left;
+        const maxHeight = desktopRect.height - resizeState.top;
+        if (resizeState.mode === "right" || resizeState.mode === "corner") {
+          const nextWidth = Math.max(320, Math.min(maxWidth, resizeState.startWidth + (event.clientX - resizeState.startX)));
+          windowEl.style.width = `${nextWidth}px`;
+        }
+
+        if (resizeState.mode === "bottom" || resizeState.mode === "corner") {
+          const nextHeight = Math.max(220, Math.min(maxHeight, resizeState.startHeight + (event.clientY - resizeState.startY)));
+          windowEl.style.height = `${nextHeight}px`;
+        }
+      };
+
+      const onPointerUp = () => {
+        resizeState = null;
+        document.removeEventListener("pointermove", onPointerMove);
+        document.removeEventListener("pointerup", onPointerUp);
+      };
+
+      resizeHandles.forEach((handle) => {
+        handle.addEventListener("pointerdown", (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          const rect = windowEl.getBoundingClientRect();
+          const desktopRect = document.getElementById("desktop").getBoundingClientRect();
+          windowEl.style.width = `${rect.width}px`;
+          windowEl.style.height = `${rect.height}px`;
+          resizeState = {
+            startX: event.clientX,
+            startY: event.clientY,
+            startWidth: rect.width,
+            startHeight: rect.height,
+            left: rect.left - desktopRect.left,
+            top: rect.top - desktopRect.top,
+            mode: handle.dataset.resize || "corner",
+          };
+          setActiveWindow(windowEl.dataset.windowId);
+          document.addEventListener("pointermove", onPointerMove);
+          document.addEventListener("pointerup", onPointerUp);
+        });
+      });
+    }
+
+    function openToolWindow(tool) {
+      const windowId = `win-${tool.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
+      const existing = windowMap.get(windowId);
+      if (existing) {
+        existing.window.style.display = "grid";
+        setActiveWindow(windowId);
+        return;
+      }
+
+      const appWindow = document.createElement("article");
+      appWindow.className = "app-window";
+      appWindow.dataset.windowId = windowId;
+      appWindow.setAttribute("aria-label", `${tool.title} window`);
+
+      const leftOffset = 60 + (openCount % 5) * 28;
+      const topOffset = 38 + (openCount % 4) * 24;
+      appWindow.style.left = `${leftOffset}px`;
+      appWindow.style.top = `${topOffset}px`;
+      openCount += 1;
+
+      appWindow.innerHTML = `
+        <div class="window-titlebar">
+          <img class="title-icon" src="${fallbackIcon}" alt="" />
+          <div class="window-title">${tool.title}${tool.experimental ? " [experimental]" : ""}</div>
+          <div class="window-actions">
+            <button class="win-btn win-open" type="button" title="Open in new tab">o</button>
+            <button class="win-btn win-minimize" type="button" title="Minimize">_</button>
+            <button class="win-btn win-close" type="button" title="Close">x</button>
+          </div>
+        </div>
+        <div class="window-content">
+          <iframe src="${tool.link}" loading="lazy" referrerpolicy="no-referrer"></iframe>
+          <div class="window-resizer window-resizer-right" data-resize="right" role="presentation"></div>
+          <div class="window-resizer window-resizer-bottom" data-resize="bottom" role="presentation"></div>
+          <div class="window-resizer window-resizer-corner" data-resize="corner" role="presentation"></div>
+        </div>
       `;
-      groupSection.appendChild(groupSummary);
 
-      const toolsList = document.createElement("div");
-      toolsList.className = "tools-list";
+      const taskButton = document.createElement("button");
+      taskButton.className = "task-button";
+      taskButton.type = "button";
+      taskButton.textContent = tool.title;
+      taskButton.addEventListener("click", () => toggleMinimize(windowId));
 
-      groupTools.forEach((tool) => {
-        const card = document.createElement("div");
-        card.className = "tool-card";
+      taskButtons.appendChild(taskButton);
+      windowLayer.appendChild(appWindow);
+      windowMap.set(windowId, { id: windowId, window: appWindow, taskButton });
 
-        card.innerHTML = `
-          <div class="tool-title">${tool.title}</div>
-          <div class="tool-desc">${tool.description}</div>
-          <a class="tool-link" href="${tool.link}">Visit</a>
-        `;
+      const titlebar = appWindow.querySelector(".window-titlebar");
+      const closeBtn = appWindow.querySelector(".win-close");
+      const minBtn = appWindow.querySelector(".win-minimize");
+      const openBtn = appWindow.querySelector(".win-open");
+      const titleIcon = appWindow.querySelector(".title-icon");
+      const resizeHandles = appWindow.querySelectorAll(".window-resizer");
 
-        toolsList.appendChild(card);
+      attachDrag(appWindow, titlebar);
+      attachResize(appWindow, resizeHandles);
+
+      appWindow.addEventListener("mousedown", () => setActiveWindow(windowId));
+      closeBtn.addEventListener("click", () => removeWindow(windowId));
+      minBtn.addEventListener("click", () => toggleMinimize(windowId));
+      openBtn.addEventListener("click", () => window.open(tool.link, "_blank", "noopener,noreferrer"));
+      titleIcon.addEventListener("error", () => {
+        titleIcon.src = fallbackIcon;
+      });
+      applyResolvedFavicon(titleIcon, tool.link);
+
+      setActiveWindow(windowId);
+    }
+
+    function createDesktopIcon(tool) {
+      const iconButton = document.createElement("button");
+      iconButton.type = "button";
+      iconButton.className = "desktop-icon";
+      iconButton.title = `${tool.title}\n${tool.description}`;
+
+      const label = tool.experimental ? `${tool.title} [exp]` : tool.title;
+      iconButton.innerHTML = `
+        <img src="${fallbackIcon}" alt="${tool.title} favicon" loading="lazy" />
+        <span>${label}</span>
+      `;
+
+      const image = iconButton.querySelector("img");
+      image.addEventListener("error", () => {
+        image.src = fallbackIcon;
+      });
+      applyResolvedFavicon(image, tool.link);
+
+      iconButton.addEventListener("dblclick", () => openToolWindow(tool));
+      iconButton.addEventListener("click", () => {
+        if (window.matchMedia("(pointer: coarse)").matches) {
+          openToolWindow(tool);
+        }
+      });
+      iconButton.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          openToolWindow(tool);
+        }
       });
 
-      groupSection.appendChild(toolsList);
-      toolsGroupsContainer.appendChild(groupSection);
-      groupDetails.push(groupSection);
-    });
+      desktopIcons.appendChild(iconButton);
+    }
 
-    document.getElementById("expand-all").addEventListener("click", () => {
-      groupDetails.forEach((group) => {
-        group.open = true;
-      });
-    });
-
-    document.getElementById("collapse-all").addEventListener("click", () => {
-      groupDetails.forEach((group) => {
-        group.open = false;
-      });
-    });
-
-    const experimentalToolsList = document.getElementById("experimental-tools-list");
-    experimentalTools.forEach((tool) => {
-      const card = document.createElement("div");
-      card.className = "tool-card";
-
-      card.innerHTML = `
-          <div class="tool-title">${tool.title}</div>
-          <div class="tool-desc">${tool.description}</div>
-          <a class="tool-link" href="${tool.link}">Visit</a>
-        `;
-
-      experimentalToolsList.appendChild(card);
-    });
+    allTools.forEach((tool) => createDesktopIcon(tool));
+    updateClock();
+    setInterval(updateClock, 1000);
   </script>
 </body>
 
