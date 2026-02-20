@@ -6,6 +6,13 @@ const tools = [
     category: "Audio & Music",
   },
   {
+    title: "hack the news",
+    description: "paywalls are not the way",
+    link: "https://github.com/jwd83/htn",
+    blank: true,
+    category: "Misc"
+  },
+  {
     title: "Gamepad Tester",
     description: "Check your gamepad or controller inputs in real time.",
     link: "https://gamepad.jwd.me",
