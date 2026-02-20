@@ -106,10 +106,41 @@
       cursor: default;
       line-height: 1;
       transition: background 0.08s, color 0.08s;
+      position: relative;
     }
 
-    .menu-item:hover {
+    .menu-item:hover,
+    .menu-item.active {
       border-color: #000;
+      background: #000;
+      color: #fff;
+    }
+
+    .menu-dropdown {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: -1px;
+      background: #fff;
+      border: 2px solid #000;
+      box-shadow: 2px 2px 0 rgba(0,0,0,.5);
+      min-width: 200px;
+      z-index: 9999;
+      padding: 2px 0;
+    }
+
+    .menu-item.active .menu-dropdown {
+      display: block;
+    }
+
+    .menu-dropdown-item {
+      padding: 3px 16px;
+      cursor: default;
+      white-space: nowrap;
+      color: #000;
+    }
+
+    .menu-dropdown-item:hover {
       background: #000;
       color: #fff;
     }
@@ -436,11 +467,11 @@
         <span class="menu-item menu-apple" aria-label="Project icon">
           <img src="./favicon.svg" alt="" />
         </span>
-        <span class="menu-item">File</span>
-        <span class="menu-item">Edit</span>
-        <span class="menu-item">Find</span>
-        <span class="menu-item">Window</span>
-        <span class="menu-item">Tools</span>
+        <span class="menu-item" data-category="Audio & Music">Audio<div class="menu-dropdown"></div></span>
+        <span class="menu-item" data-category="Games & Input">Games<div class="menu-dropdown"></div></span>
+        <span class="menu-item" data-category="Image & Media">Image<div class="menu-dropdown"></div></span>
+        <span class="menu-item" data-category="Text & Utility">Utility<div class="menu-dropdown"></div></span>
+        <span class="menu-item" data-category="Misc">Misc<div class="menu-dropdown"></div></span>
       </div>
       <div class="panel-title">tools.jwd.me</div>
       <div class="panel-clock" id="panel-clock" aria-live="polite"></div>
@@ -971,6 +1002,45 @@
     allTools.forEach((tool) => createDesktopIcon(tool));
     updateClock();
     setInterval(updateClock, 1000);
+
+    // Populate menu dropdowns
+    document.querySelectorAll(".menu-item[data-category]").forEach((menuItem) => {
+      const category = menuItem.dataset.category;
+      const dropdown = menuItem.querySelector(".menu-dropdown");
+      const categoryTools = allTools.filter((t) => t.category === category);
+      categoryTools.sort((a, b) => a.title.localeCompare(b.title));
+      categoryTools.forEach((tool) => {
+        const item = document.createElement("div");
+        item.className = "menu-dropdown-item";
+        item.textContent = tool.title;
+        item.addEventListener("click", (e) => {
+          e.stopPropagation();
+          openToolWindow(tool);
+          closeMenus();
+        });
+        dropdown.appendChild(item);
+      });
+
+      menuItem.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const wasActive = menuItem.classList.contains("active");
+        closeMenus();
+        if (!wasActive) menuItem.classList.add("active");
+      });
+
+      menuItem.addEventListener("mouseenter", () => {
+        if (document.querySelector(".menu-item.active")) {
+          closeMenus();
+          menuItem.classList.add("active");
+        }
+      });
+    });
+
+    function closeMenus() {
+      document.querySelectorAll(".menu-item.active").forEach((el) => el.classList.remove("active"));
+    }
+
+    document.addEventListener("click", closeMenus);
   </script>
 </body>
 
