@@ -188,15 +188,70 @@
       display: block;
     }
 
-    .panel-title {
-      margin-inline: auto;
-      color: #1e1e1e;
+    .panel-apps {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding: 2px 0;
+    }
+
+    .panel-apps::-webkit-scrollbar {
+      display: none;
+    }
+
+    .panel-app-btn {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      border: 1px solid transparent;
+      background: transparent;
+      padding: 2px 8px 2px 4px;
+      cursor: default;
+      font: inherit;
+      font-size: 12px;
       font-weight: 700;
+      line-height: 1;
       white-space: nowrap;
+      max-width: 140px;
+      flex-shrink: 0;
+    }
+
+    .panel-app-btn img {
+      width: 16px;
+      height: 16px;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+
+    .panel-app-btn span {
       overflow: hidden;
       text-overflow: ellipsis;
-      text-align: center;
-      max-width: 45%;
+    }
+
+    .panel-app-btn:hover {
+      border-color: #000;
+      background: rgba(255, 255, 255, 0.5);
+    }
+
+    .panel-app-btn.active {
+      border-color: #000;
+      background: #fff;
+      box-shadow: inset 0 -2px 0 #000;
+    }
+
+    .panel-app-btn.minimized {
+      border-color: #999;
+      background: transparent;
+      opacity: 0.65;
+    }
+
+    .panel-app-btn.minimized:hover {
+      opacity: 1;
+      border-color: #000;
     }
 
     .panel-clock {
@@ -427,6 +482,10 @@
       color: #fff;
     }
 
+    .win-btn-min {
+      font-size: 11px;
+    }
+
     .window-content {
       position: relative;
       background: #fff;
@@ -482,7 +541,7 @@
     }
 
     @media (max-width: 900px) {
-      .panel-title {
+      .panel-app-btn span {
         display: none;
       }
 
@@ -521,7 +580,7 @@
         <span class="menu-item" data-category="Text & Utility">Utility<div class="menu-dropdown"></div></span>
         <span class="menu-item" data-category="Misc">Misc<div class="menu-dropdown"></div></span>
       </div>
-      <div class="panel-title">tools.jwd.me</div>
+      <div class="panel-apps" id="panel-apps"></div>
       <div class="panel-clock" id="panel-clock" aria-live="polite"></div>
     </header>
 
@@ -684,6 +743,9 @@
     function setActiveWindow(windowId) {
       windowMap.forEach((entry, id) => {
         entry.window.classList.toggle("inactive", id !== windowId);
+        if (entry.panelBtn) {
+          entry.panelBtn.classList.toggle("active", id === windowId && !entry.minimized);
+        }
       });
 
       const active = windowMap.get(windowId);
@@ -693,6 +755,32 @@
       }
     }
 
+    function minimizeWindow(windowId) {
+      const entry = windowMap.get(windowId);
+      if (!entry) return;
+      entry.minimized = true;
+      entry.window.style.display = "none";
+      if (entry.panelBtn) {
+        entry.panelBtn.classList.remove("active");
+        entry.panelBtn.classList.add("minimized");
+      }
+      const newest = [...windowMap.values()]
+        .filter((e) => !e.minimized)
+        .sort((a, b) => Number(b.window.style.zIndex || 0) - Number(a.window.style.zIndex || 0))[0];
+      if (newest) setActiveWindow(newest.id);
+    }
+
+    function restoreWindow(windowId) {
+      const entry = windowMap.get(windowId);
+      if (!entry) return;
+      entry.minimized = false;
+      entry.window.style.display = "grid";
+      if (entry.panelBtn) {
+        entry.panelBtn.classList.remove("minimized");
+      }
+      setActiveWindow(windowId);
+    }
+
     function removeWindow(windowId) {
       const entry = windowMap.get(windowId);
       if (!entry) {
@@ -700,9 +788,11 @@
       }
 
       entry.window.remove();
+      if (entry.panelBtn) entry.panelBtn.remove();
       windowMap.delete(windowId);
 
       const newest = [...windowMap.values()]
+        .filter((e) => !e.minimized)
         .sort((a, b) => Number(b.window.style.zIndex || 0) - Number(a.window.style.zIndex || 0))[0];
       if (newest) {
         setActiveWindow(newest.id);
@@ -811,8 +901,11 @@
       const windowId = `win-${tool.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
       const existing = windowMap.get(windowId);
       if (existing) {
-        existing.window.style.display = "grid";
-        setActiveWindow(windowId);
+        if (existing.minimized) {
+          restoreWindow(windowId);
+        } else {
+          setActiveWindow(windowId);
+        }
         return;
       }
 
@@ -832,6 +925,7 @@
           <img class="title-icon" src="${fallbackIcon}" alt="" />
           <div class="window-title">${tool.title}</div>
           <div class="window-actions">
+            <button class="win-btn win-btn-min win-minimize" type="button" title="Minimize">&#8211;</button>
             <button class="win-btn win-open" type="button" title="Open in new tab">+</button>
             <button class="win-btn win-close" type="button" title="Close">x</button>
           </div>
@@ -845,11 +939,22 @@
       `;
 
       windowLayer.appendChild(appWindow);
-      windowMap.set(windowId, { id: windowId, window: appWindow });
+
+      const panelBtn = document.createElement("button");
+      panelBtn.type = "button";
+      panelBtn.className = "panel-app-btn active";
+      panelBtn.dataset.windowId = windowId;
+      panelBtn.innerHTML = `<img src="${fallbackIcon}" alt="" /><span>${tool.title}</span>`;
+      const panelBtnIcon = panelBtn.querySelector("img");
+      applyResolvedFavicon(panelBtnIcon, tool.link);
+      document.getElementById("panel-apps").appendChild(panelBtn);
+
+      windowMap.set(windowId, { id: windowId, window: appWindow, panelBtn, minimized: false });
 
       const titlebar = appWindow.querySelector(".window-titlebar");
       const closeBtn = appWindow.querySelector(".win-close");
       const openBtn = appWindow.querySelector(".win-open");
+      const minimizeBtn = appWindow.querySelector(".win-minimize");
       const titleIcon = appWindow.querySelector(".title-icon");
       const resizeHandles = appWindow.querySelectorAll(".window-resizer");
 
@@ -859,6 +964,18 @@
       appWindow.addEventListener("mousedown", () => setActiveWindow(windowId));
       closeBtn.addEventListener("click", () => removeWindow(windowId));
       openBtn.addEventListener("click", () => window.open(tool.link, "_blank", "noopener,noreferrer"));
+      minimizeBtn.addEventListener("click", () => minimizeWindow(windowId));
+      panelBtn.addEventListener("click", () => {
+        const entry = windowMap.get(windowId);
+        if (!entry) return;
+        if (entry.minimized) {
+          restoreWindow(windowId);
+        } else if (appWindow.classList.contains("inactive")) {
+          setActiveWindow(windowId);
+        } else {
+          minimizeWindow(windowId);
+        }
+      });
       titleIcon.addEventListener("error", () => {
         titleIcon.src = fallbackIcon;
       });
