@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Jared's Tools Desktop</title>
+  <title>tools.jwd.me</title>
   <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
   <link rel="shortcut icon" href="./favicon.svg" />
   <style>
@@ -62,7 +62,7 @@
       width: 100%;
       height: 100%;
       display: grid;
-      grid-template-rows: 36px 1fr 44px;
+      grid-template-rows: 36px 1fr;
       z-index: 1;
     }
 
@@ -101,9 +101,17 @@
     }
 
     .menu-apple {
-      font-size: 16px;
-      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       padding-inline: 8px;
+    }
+
+    .menu-apple img {
+      width: 15px;
+      height: 15px;
+      object-fit: contain;
+      display: block;
     }
 
     .panel-title {
@@ -318,72 +326,9 @@
       z-index: 7;
     }
 
-    .panel-bottom {
-      border-width: 2px 0 0;
-      gap: 8px;
-      padding: 4px 8px;
-    }
-
-    .start-button {
-      border: 2px solid #000;
-      background: linear-gradient(#fff, #e1e1e1);
-      padding: 4px 10px;
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      font-size: 13px;
-      font-weight: 700;
-      min-width: 96px;
-    }
-
-    .start-button img {
-      width: 14px;
-      height: 14px;
-      object-fit: contain;
-    }
-
-    .task-buttons {
-      display: flex;
-      gap: 6px;
-      overflow-x: auto;
-      scrollbar-width: thin;
-      flex: 1;
-      min-width: 0;
-    }
-
-    .task-button {
-      border: 2px solid #000;
-      background: linear-gradient(#fff, #e9e9e9);
-      color: #111;
-      font-size: 12px;
-      padding: 4px 9px;
-      max-width: 210px;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      overflow: hidden;
-      cursor: pointer;
-    }
-
-    .task-button.active {
-      background: #000;
-      border-color: #000;
-      color: #fff;
-    }
-
-    .desktop-credit {
-      font-size: 12px;
-      color: #111;
-      white-space: nowrap;
-    }
-
-    .desktop-credit a {
-      color: #111;
-      text-decoration: none;
-    }
-
     @media (max-width: 900px) {
       #desktop-shell {
-        grid-template-rows: 36px 1fr 52px;
+        grid-template-rows: 36px 1fr;
       }
 
       .panel-title {
@@ -409,9 +354,6 @@
         height: min(56vh, 400px);
       }
 
-      .desktop-credit {
-        display: none;
-      }
     }
   </style>
 </head>
@@ -420,14 +362,16 @@
   <div id="desktop-shell">
     <header class="panel panel-top" role="banner">
       <div class="panel-menu" aria-label="Menu strip">
-        <span class="menu-item menu-apple" aria-label="Apple menu">&#63743;</span>
+        <span class="menu-item menu-apple" aria-label="Project icon">
+          <img src="./favicon.svg" alt="" />
+        </span>
         <span class="menu-item">File</span>
         <span class="menu-item">Edit</span>
         <span class="menu-item">Find</span>
         <span class="menu-item">Window</span>
         <span class="menu-item">Tools</span>
       </div>
-      <div class="panel-title">Jared's Tools Desktop</div>
+      <div class="panel-title">tools.jwd.me</div>
       <div class="panel-clock" id="panel-clock" aria-live="polite"></div>
     </header>
 
@@ -435,18 +379,6 @@
       <section class="desktop-icons" id="desktop-icons" aria-label="Desktop icons"></section>
       <section class="window-layer" id="window-layer" aria-label="Open windows"></section>
     </main>
-
-    <footer class="panel panel-bottom">
-      <button class="start-button" type="button" aria-label="Launcher">
-        <img src="./favicon.svg" alt="" />
-        <span>Tools</span>
-      </button>
-      <div class="task-buttons" id="task-buttons" aria-label="Open window buttons"></div>
-      <div class="desktop-credit">
-        <a href="https://jwd.me">jwd.me</a> |
-        <a href="https://github.com/jwd83/tools">source</a>
-      </div>
-    </footer>
   </div>
 
   <script>
@@ -600,7 +532,6 @@
 
     const desktopIcons = document.getElementById("desktop-icons");
     const windowLayer = document.getElementById("window-layer");
-    const taskButtons = document.getElementById("task-buttons");
     const panelClock = document.getElementById("panel-clock");
     const fallbackIcon = "./favicon.svg";
     let topZIndex = 30;
@@ -753,7 +684,6 @@
       windowMap.forEach((entry, id) => {
         const isActive = id === windowId;
         entry.window.classList.toggle("inactive", !isActive);
-        entry.taskButton.classList.toggle("active", isActive);
       });
 
       const active = windowMap.get(windowId);
@@ -770,28 +700,12 @@
       }
 
       entry.window.remove();
-      entry.taskButton.remove();
       windowMap.delete(windowId);
 
       const newest = [...windowMap.values()]
         .sort((a, b) => Number(b.window.style.zIndex || 0) - Number(a.window.style.zIndex || 0))[0];
       if (newest) {
         setActiveWindow(newest.id);
-      }
-    }
-
-    function toggleMinimize(windowId) {
-      const entry = windowMap.get(windowId);
-      if (!entry) {
-        return;
-      }
-
-      const isHidden = entry.window.style.display === "none";
-      entry.window.style.display = isHidden ? "grid" : "none";
-      if (isHidden) {
-        setActiveWindow(windowId);
-      } else {
-        entry.taskButton.classList.remove("active");
       }
     }
 
@@ -916,7 +830,6 @@
           <div class="window-title">${tool.title}${tool.experimental ? " [experimental]" : ""}</div>
           <div class="window-actions">
             <button class="win-btn win-open" type="button" title="Open in new tab">+</button>
-            <button class="win-btn win-minimize" type="button" title="Minimize">-</button>
             <button class="win-btn win-close" type="button" title="Close">x</button>
           </div>
         </div>
@@ -928,19 +841,11 @@
         <div class="window-resizer window-resizer-corner" data-resize="corner" role="presentation"></div>
       `;
 
-      const taskButton = document.createElement("button");
-      taskButton.className = "task-button";
-      taskButton.type = "button";
-      taskButton.textContent = tool.title;
-      taskButton.addEventListener("click", () => toggleMinimize(windowId));
-
-      taskButtons.appendChild(taskButton);
       windowLayer.appendChild(appWindow);
-      windowMap.set(windowId, { id: windowId, window: appWindow, taskButton });
+      windowMap.set(windowId, { id: windowId, window: appWindow });
 
       const titlebar = appWindow.querySelector(".window-titlebar");
       const closeBtn = appWindow.querySelector(".win-close");
-      const minBtn = appWindow.querySelector(".win-minimize");
       const openBtn = appWindow.querySelector(".win-open");
       const titleIcon = appWindow.querySelector(".title-icon");
       const resizeHandles = appWindow.querySelectorAll(".window-resizer");
@@ -950,7 +855,6 @@
 
       appWindow.addEventListener("mousedown", () => setActiveWindow(windowId));
       closeBtn.addEventListener("click", () => removeWindow(windowId));
-      minBtn.addEventListener("click", () => toggleMinimize(windowId));
       openBtn.addEventListener("click", () => window.open(tool.link, "_blank", "noopener,noreferrer"));
       titleIcon.addEventListener("error", () => {
         titleIcon.src = fallbackIcon;
