@@ -1021,7 +1021,7 @@
       desktopIcons.appendChild(iconButton);
     }
 
-    tools.forEach(createDesktopIcon);
+    [...tools].sort((a, b) => (a.blank ? 1 : 0) - (b.blank ? 1 : 0)).forEach(createDesktopIcon);
     updateClock();
     setInterval(updateClock, 1000);
 
