@@ -9,6 +9,8 @@ const tools = [
     title: "Gamepad Tester",
     description: "Check your gamepad or controller inputs in real time.",
     link: "https://gamepad.jwd.me",
+    blank: true,
+
     category: "Games & Input",
   },
   {
