@@ -17,6 +17,8 @@ Classic Mac OS System 7 desktop UI that launches Jared's web tools.
 - Favicons are resolved with a waterfall strategy and cached in localStorage
 - Windows have subtle open animations and titlebar line patterns for authentic System 7 feel
 - Menu bar dropdowns are populated from tool categories and support hover-switching
+- Running apps appear as buttons in the panel bar (between menus and clock); clicking toggles focus/minimize
+- Windows have a minimize button (`–`) in the titlebar; minimized windows hide but keep their panel button (dimmed)
 
 ## Conventions
 
