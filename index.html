@@ -609,35 +609,54 @@
     const faviconRuntimeCache = new Map();
     const faviconPromiseCache = new Map();
 
-    function faviconCacheKey(hostname) {
-      return `tools:favicon:${hostname}`;
+    function faviconScope(url) {
+      const parsed = new URL(url);
+      const path = parsed.pathname.endsWith("/") ? parsed.pathname : `${parsed.pathname}/`;
+      return `${parsed.origin}${path}`;
     }
 
-    function getCachedFavicon(hostname) {
+    function faviconCacheKey(scope) {
+      return `tools:favicon:v2:${encodeURIComponent(scope)}`;
+    }
+
+    function getCachedFavicon(scope) {
       try {
-        return localStorage.getItem(faviconCacheKey(hostname));
+        return localStorage.getItem(faviconCacheKey(scope));
       } catch {
         return null;
       }
     }
 
-    function setCachedFavicon(hostname, iconUrl) {
+    function setCachedFavicon(scope, iconUrl) {
       try {
-        localStorage.setItem(faviconCacheKey(hostname), iconUrl);
+        localStorage.setItem(faviconCacheKey(scope), iconUrl);
+      } catch {
+      }
+    }
+
+    function clearCachedFavicon(scope) {
+      try {
+        localStorage.removeItem(faviconCacheKey(scope));
       } catch {
       }
     }
 
     function faviconCandidates(url) {
-      const { hostname: host, origin } = new URL(url);
-      return [
-        `${origin}/favicon.ico`,
+      const { hostname: host, origin, pathname } = new URL(url);
+      const path = pathname.endsWith("/") ? pathname : `${pathname}/`;
+      const projectBase = `${origin}${path}`;
+
+      return [...new Set([
+        `${projectBase}favicon.svg`,
+        `${projectBase}favicon.ico`,
+        `${projectBase}favicon.png`,
         `${origin}/favicon.svg`,
+        `${origin}/favicon.ico`,
         `${origin}/favicon.png`,
         `${origin}/apple-touch-icon.png`,
         `https://icons.duckduckgo.com/ip3/${host}.ico`,
         `https://www.google.com/s2/favicons?domain=${host}&sz=128`,
-      ];
+      ])];
     }
 
     function preloadImage(url) {
@@ -652,45 +671,57 @@
     }
 
     function resolveFavicon(url) {
-      let hostname = "";
+      let scope = "";
       try {
-        hostname = new URL(url).hostname;
+        scope = faviconScope(url);
       } catch {
         return Promise.resolve(fallbackIcon);
       }
 
-      if (faviconRuntimeCache.has(hostname)) {
-        return Promise.resolve(faviconRuntimeCache.get(hostname));
+      if (faviconRuntimeCache.has(scope)) {
+        const runtimeIcon = faviconRuntimeCache.get(scope);
+        if (runtimeIcon && runtimeIcon !== fallbackIcon) {
+          return Promise.resolve(runtimeIcon);
+        }
+        faviconRuntimeCache.delete(scope);
       }
 
-      if (faviconPromiseCache.has(hostname)) {
-        return faviconPromiseCache.get(hostname);
-      }
-
-      const cachedIcon = getCachedFavicon(hostname);
-      if (cachedIcon) {
-        faviconRuntimeCache.set(hostname, cachedIcon);
-        return Promise.resolve(cachedIcon);
+      if (faviconPromiseCache.has(scope)) {
+        return faviconPromiseCache.get(scope);
       }
 
       const pendingResolution = (async () => {
+        const { origin } = new URL(scope);
+        const cachedIcon = getCachedFavicon(scope);
+        if (cachedIcon && cachedIcon.startsWith(origin)) {
+          try {
+            await preloadImage(cachedIcon);
+            faviconRuntimeCache.set(scope, cachedIcon);
+            return cachedIcon;
+          } catch {
+            clearCachedFavicon(scope);
+          }
+        } else if (cachedIcon) {
+          clearCachedFavicon(scope);
+        }
+
         const candidates = faviconCandidates(url);
         for (const iconUrl of candidates) {
           try {
             await preloadImage(iconUrl);
-            faviconRuntimeCache.set(hostname, iconUrl);
-            setCachedFavicon(hostname, iconUrl);
+            faviconRuntimeCache.set(scope, iconUrl);
+            setCachedFavicon(scope, iconUrl);
             return iconUrl;
           } catch {
           }
         }
-        faviconRuntimeCache.set(hostname, fallbackIcon);
+        faviconRuntimeCache.set(scope, fallbackIcon);
         return fallbackIcon;
       })();
 
-      faviconPromiseCache.set(hostname, pendingResolution);
+      faviconPromiseCache.set(scope, pendingResolution);
       pendingResolution.finally(() => {
-        faviconPromiseCache.delete(hostname);
+        faviconPromiseCache.delete(scope);
       });
 
       return pendingResolution;
