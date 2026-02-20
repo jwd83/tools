@@ -492,154 +492,8 @@
     </main>
   </div>
 
+  <script src="apps.js"></script>
   <script>
-    const tools = [
-      {
-        title: "LeftRight Audio Test",
-        description: "Test your speakers or headphones with left/right audio channels.",
-        link: "https://leftright.jwd.me",
-        category: "Audio & Music",
-      },
-      {
-        title: "Gamepad Tester",
-        description: "Check your gamepad or controller inputs in real time.",
-        link: "https://gamepad.jwd.me",
-        category: "Games & Input",
-      },
-      {
-        title: "Shrink - Image Resizer",
-        description: "Shrink large images so they are small enough to upload to Discord or other sites.",
-        link: "https://shrink.jwd.me",
-        category: "Image & Media",
-      },
-      {
-        title: "Blur - Image Blur/Blackout",
-        description: "Blur or blackout sensitive/spoiler areas in images directly in your browser.",
-        link: "https://blur.jwd.me/",
-        category: "Image & Media",
-      },
-      {
-        title: "Croppy - Square 640 Image Cropper",
-        description: "Crop your images to a perfect square 640x640 format usable by Wan/ComfyUI.",
-        link: "https://jwd83.github.io/croppy/",
-        category: "Image & Media",
-      },
-      {
-        title: "Mic FFT Visualizer",
-        description: "Visualize your microphone input in real-time using Fast Fourier Transform (FFT).",
-        link: "https://jwd83.github.io/mic-fft/",
-        category: "Audio & Music",
-      },
-      {
-        title: "URL Cleaner",
-        description: "Strip tracking and extra noise from URLs to make them easier to share.",
-        link: "https://jwd83.github.io/cleaner/",
-        category: "Text & Utility",
-      },
-      {
-        title: "Ping Test",
-        description: "Test ping and latency to check your connection quickly.",
-        link: "https://ping.jwd.me/",
-        category: "Text & Utility",
-      },
-      {
-        title: ".torrent to Magnet Link",
-        description: "Generate magnet links from torrent files for easy sharing and downloading.",
-        link: "https://magneto.jwd.me/",
-        category: "Text & Utility",
-      },
-      {
-        title: "Snake Game",
-        description: "Classic Snake game you can play in your browser.",
-        link: "https://jwd83.github.io/snake/",
-        category: "Games & Input",
-      },
-      {
-        title: "GitHubPie",
-        description: "See a pie chart of a user's github language use.",
-        link: "https://jwd83.github.io/githubpie/",
-        category: "Text & Utility",
-      },
-      {
-        title: "QR Link Generator",
-        description: "Chrome extension to locally/offline generate QR codes from URLs for easy sharing.",
-        link: "https://github.com/jwd83/qrl",
-        category: "Image & Media",
-      },
-      {
-        title: "PDF Merge",
-        description: "Merge multiple PDF files into a single document directly in your browser.",
-        link: "https://jwd83.github.io/pdfmerge/",
-        category: "Image & Media",
-      },
-      {
-        title: "Chromatic Keyboard",
-        description: "A virtual C major keyboard supporting 3 octaves. Bring your own sample!",
-        link: "https://jwd83.github.io/chromatickeyboard/",
-        category: "Audio & Music",
-      },
-      {
-        title: "Chromatic Tuner",
-        description: "Tune your guitar, violin, etc. using your device's microphone.",
-        link: "https://tuner.jwd.me/",
-        category: "Audio & Music",
-      },
-      {
-        title: "Xfer - Simple file sharing!",
-        description: "P2P encrypted file sharing with no uploads, no tracking, and no ads.",
-        link: "https://xfer.jwd.me/",
-        category: "Text & Utility",
-      },
-      {
-        title: "Plyground - In browser Python REPL",
-        description: "Run Python code directly in your browser with a REPL interface.",
-        link: "https://jwd83.github.io/plyground/",
-        category: "Text & Utility",
-      },
-      {
-        title: "Hash Generator",
-        description: "Generate various types of hashes (SHA-256, SHA3, etc.) from your input file.",
-        link: "https://hash.jwd.me/",
-        category: "Text & Utility",
-      },
-      {
-        title: "Markdown Editor",
-        description: "Basic in-browser markdown editor with preview.",
-        link: "https://md.jwd.me/",
-        category: "Text & Utility",
-      },
-      {
-        title: "Binary Differ",
-        description: "A simple in-browser binary diff tool.",
-        link: "https://bindiff.jwd.me/",
-        category: "Text & Utility",
-      },
-      {
-        title: "Weather",
-        description: "A simple weather app designed by GLM and GPT.",
-        link: "https://weather.jwd.me/",
-        category: "Misc",
-      },
-      {
-        title: "Gridlines",
-        description: "Make crochet and knitting pattern lines.",
-        link: "https://gridlines.jwd.me/",
-        category: "Misc",
-      },
-      {
-        title: "Emoji Favicon Generator",
-        description: "Generate a favicon from any emoji in your browser.",
-        link: "https://favicon.jwd.me/",
-        category: "Image & Media",
-      },
-    ];
-
-    const experimentalTools = [];
-
-    const allTools = [
-      ...tools.map((tool) => ({ ...tool, experimental: false })),
-      ...experimentalTools.map((tool) => ({ ...tool, category: "Experimental", experimental: true })),
-    ];
 
     const desktopIcons = document.getElementById("desktop-icons");
     const windowLayer = document.getElementById("window-layer");
@@ -937,7 +791,7 @@
       appWindow.innerHTML = `
         <div class="window-titlebar">
           <img class="title-icon" src="${fallbackIcon}" alt="" />
-          <div class="window-title">${tool.title}${tool.experimental ? " [experimental]" : ""}</div>
+          <div class="window-title">${tool.title}</div>
           <div class="window-actions">
             <button class="win-btn win-open" type="button" title="Open in new tab">+</button>
             <button class="win-btn win-close" type="button" title="Close">x</button>
@@ -980,7 +834,7 @@
       iconButton.className = "desktop-icon";
       iconButton.title = `${tool.title}\n${tool.description}`;
 
-      const label = tool.experimental ? `${tool.title} [exp]` : tool.title;
+      const label = tool.title;
       iconButton.innerHTML = `
         <img src="${fallbackIcon}" alt="${tool.title} favicon" loading="lazy" />
         <span>${label}</span>
@@ -1008,7 +862,7 @@
       desktopIcons.appendChild(iconButton);
     }
 
-    allTools.forEach((tool) => createDesktopIcon(tool));
+    tools.forEach((tool) => createDesktopIcon(tool));
     updateClock();
     setInterval(updateClock, 1000);
 
@@ -1016,7 +870,7 @@
     document.querySelectorAll(".menu-item[data-category]").forEach((menuItem) => {
       const category = menuItem.dataset.category;
       const dropdown = menuItem.querySelector(".menu-dropdown");
-      const categoryTools = allTools.filter((t) => t.category === category);
+      const categoryTools = tools.filter((t) => t.category === category);
       categoryTools.sort((a, b) => a.title.localeCompare(b.title));
       categoryTools.forEach((tool) => {
         const item = document.createElement("div");
