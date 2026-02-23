@@ -70,6 +70,12 @@ const tools = [
     category: "Games & Input",
   },
   {
+    title: "Binary Klondike Solitaire",
+    description: "Play a binary-themed Klondike solitaire game in your browser.",
+    link: "https://bondike.jwd.me",
+    category: "Games & Input",
+  },
+  {
     title: "GitHubPie",
     description: "See a pie chart of a user's github language use.",
     link: "https://jwd83.github.io/githubpie/",
