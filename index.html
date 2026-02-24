@@ -499,6 +499,10 @@
       background: #fff;
     }
 
+    .app-window.interacting .window-content iframe {
+      pointer-events: none;
+    }
+
     .window-resizer {
       position: absolute;
       z-index: 6;
@@ -803,7 +807,7 @@
       let dragState = null;
 
       const onPointerMove = (event) => {
-        if (!dragState) {
+        if (!dragState || event.pointerId !== dragState.pointerId) {
           return;
         }
 
@@ -816,27 +820,46 @@
         windowEl.style.top = `${top}px`;
       };
 
-      const onPointerUp = () => {
+      const onPointerUp = (event) => {
+        if (!dragState || (event && event.pointerId !== dragState.pointerId)) {
+          return;
+        }
+
+        if (dragState.captureTarget?.hasPointerCapture?.(dragState.pointerId)) {
+          dragState.captureTarget.releasePointerCapture(dragState.pointerId);
+        }
+
+        windowEl.classList.remove("interacting");
         dragState = null;
         document.removeEventListener("pointermove", onPointerMove);
         document.removeEventListener("pointerup", onPointerUp);
+        document.removeEventListener("pointercancel", onPointerUp);
       };
 
       dragHandle.addEventListener("pointerdown", (event) => {
+        if (event.button !== 0) {
+          return;
+        }
         if (event.target.closest(".win-btn")) {
           return;
         }
 
+        event.preventDefault();
         const rect = windowEl.getBoundingClientRect();
         const desktopRect = desktop.getBoundingClientRect();
         dragState = {
           offsetX: event.clientX - rect.left,
           offsetY: event.clientY - rect.top,
+          pointerId: event.pointerId,
+          captureTarget: dragHandle,
         };
+        dragHandle.setPointerCapture?.(event.pointerId);
+        windowEl.classList.add("interacting");
         windowEl.style.top = `${rect.top - desktopRect.top}px`;
         setActiveWindow(windowEl.dataset.windowId);
         document.addEventListener("pointermove", onPointerMove);
         document.addEventListener("pointerup", onPointerUp);
+        document.addEventListener("pointercancel", onPointerUp);
       });
     }
 
@@ -844,7 +867,7 @@
       let resizeState = null;
 
       const onPointerMove = (event) => {
-        if (!resizeState) {
+        if (!resizeState || event.pointerId !== resizeState.pointerId) {
           return;
         }
 
@@ -862,14 +885,27 @@
         }
       };
 
-      const onPointerUp = () => {
+      const onPointerUp = (event) => {
+        if (!resizeState || (event && event.pointerId !== resizeState.pointerId)) {
+          return;
+        }
+
+        if (resizeState.captureTarget?.hasPointerCapture?.(resizeState.pointerId)) {
+          resizeState.captureTarget.releasePointerCapture(resizeState.pointerId);
+        }
+
+        windowEl.classList.remove("interacting");
         resizeState = null;
         document.removeEventListener("pointermove", onPointerMove);
         document.removeEventListener("pointerup", onPointerUp);
+        document.removeEventListener("pointercancel", onPointerUp);
       };
 
       resizeHandles.forEach((handle) => {
         handle.addEventListener("pointerdown", (event) => {
+          if (event.button !== 0) {
+            return;
+          }
           event.preventDefault();
           event.stopPropagation();
           const rect = windowEl.getBoundingClientRect();
@@ -884,10 +920,15 @@
             left: rect.left - desktopRect.left,
             top: rect.top - desktopRect.top,
             mode: handle.dataset.resize || "corner",
+            pointerId: event.pointerId,
+            captureTarget: handle,
           };
+          handle.setPointerCapture?.(event.pointerId);
+          windowEl.classList.add("interacting");
           setActiveWindow(windowEl.dataset.windowId);
           document.addEventListener("pointermove", onPointerMove);
           document.addEventListener("pointerup", onPointerUp);
+          document.addEventListener("pointercancel", onPointerUp);
         });
       });
     }
