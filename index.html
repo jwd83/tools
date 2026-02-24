@@ -368,8 +368,8 @@
 
     .app-window {
       position: absolute;
-      width: min(680px, calc(100vw - 40px));
-      height: min(500px, calc(100vh - 110px));
+      width: min(max(680px, 80%), calc(100vw - 40px));
+      height: min(max(500px, 80%), calc(100vh - 110px));
       min-width: 320px;
       min-height: 220px;
       border: 2px solid var(--window-border);
@@ -565,7 +565,7 @@
 
       .app-window {
         width: min(97vw, 620px);
-        height: min(64vh, 460px);
+        height: min(80vh, 560px);
       }
     }
   </style>
