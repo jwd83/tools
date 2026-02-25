@@ -6,6 +6,13 @@ const tools = [
     category: "Audio & Music",
   },
   {
+    title: "Mic Fire Visualizer",
+    description: "Turn room audio into a Winamp-style fire spectrum in a desktop window.",
+    link: "./apps/mic-fire-visualizer.html",
+    iframeAllow: "microphone",
+    category: "Audio & Music",
+  },
+  {
     title: "hack the news",
     description: "paywalls are not the way",
     link: "https://github.com/jwd83/htn",

@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mic Fire Visualizer</title>
+  <style>
+    @font-face {
+      font-family: "APL386";
+      src: url("../APL386.ttf") format("truetype");
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+    }
+
+    :root {
+      color-scheme: light;
+      --panel: #dcdcdc;
+      --line: #000;
+      --ink: #111;
+      --bg: #bdbdbd;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      font-family: "APL386", Geneva, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+    }
+
+    body {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      overflow: hidden;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: auto auto auto auto 1fr;
+      gap: 6px;
+      align-items: center;
+      padding: 6px;
+      border-bottom: 2px solid var(--line);
+      background:
+        repeating-linear-gradient(
+          to bottom,
+          #efefef 0 2px,
+          #e2e2e2 2px 4px
+        );
+    }
+
+    button,
+    input[type="range"] {
+      font: inherit;
+    }
+
+    button {
+      border: 2px solid #000;
+      background: #fff;
+      color: #000;
+      padding: 3px 8px;
+      line-height: 1;
+      cursor: pointer;
+      min-height: 24px;
+    }
+
+    button:hover:not(:disabled) {
+      background: #000;
+      color: #fff;
+    }
+
+    button:disabled {
+      opacity: 0.45;
+      cursor: default;
+    }
+
+    .control {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      border: 2px solid #000;
+      background: #efefef;
+      padding: 1px 6px;
+      min-height: 24px;
+      white-space: nowrap;
+    }
+
+    .control output {
+      min-width: 26px;
+      text-align: right;
+      font-weight: 700;
+    }
+
+    .control input[type="range"] {
+      width: 90px;
+      accent-color: #000;
+    }
+
+    .status {
+      min-width: 0;
+      border: 2px solid #000;
+      background: #fff;
+      padding: 2px 8px;
+      line-height: 1.2;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .viz-shell {
+      position: relative;
+      min-height: 0;
+      background: #000;
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      image-rendering: pixelated;
+      background: #000;
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(to top, rgba(255, 120, 0, 0.04), transparent 45%),
+        repeating-linear-gradient(
+          to bottom,
+          rgba(255, 255, 255, 0.03) 0 1px,
+          transparent 1px 3px
+        );
+      mix-blend-mode: screen;
+    }
+
+    .hint {
+      position: absolute;
+      left: 10px;
+      bottom: 10px;
+      max-width: min(460px, calc(100% - 20px));
+      border: 2px solid #000;
+      background: rgba(235, 235, 235, 0.92);
+      padding: 6px 8px;
+      line-height: 1.2;
+      pointer-events: none;
+    }
+
+    .hint.hidden {
+      display: none;
+    }
+
+    @media (max-width: 720px) {
+      .toolbar {
+        grid-template-columns: auto auto 1fr;
+      }
+
+      .control {
+        grid-column: 1 / -1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <button id="start-btn" type="button">Start Mic</button>
+    <button id="stop-btn" type="button" disabled>Stop</button>
+
+    <label class="control" for="gain">
+      Gain
+      <input id="gain" type="range" min="0.4" max="3.2" step="0.1" value="1.6" />
+      <output id="gain-value" for="gain">1.6x</output>
+    </label>
+
+    <label class="control" for="smooth">
+      Smooth
+      <input id="smooth" type="range" min="0.2" max="0.95" step="0.05" value="0.7" />
+      <output id="smooth-value" for="smooth">0.70</output>
+    </label>
+
+    <div class="status" id="status">Idle flame running. Click Start Mic to react to room audio.</div>
+  </div>
+
+  <div class="viz-shell" id="viz-shell">
+    <canvas id="fire-canvas" aria-label="Audio fire visualizer"></canvas>
+    <div class="overlay" aria-hidden="true"></div>
+    <div class="hint" id="hint">
+      Microphone access is requested inside this embedded app window. If permission is denied, the visualizer stays in demo mode.
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("fire-canvas");
+    const shell = document.getElementById("viz-shell");
+    const statusEl = document.getElementById("status");
+    const hintEl = document.getElementById("hint");
+    const startBtn = document.getElementById("start-btn");
+    const stopBtn = document.getElementById("stop-btn");
+    const gainInput = document.getElementById("gain");
+    const smoothInput = document.getElementById("smooth");
+    const gainValue = document.getElementById("gain-value");
+    const smoothValue = document.getElementById("smooth-value");
+
+    const ctx = canvas.getContext("2d", { alpha: false });
+    const fireCanvas = document.createElement("canvas");
+    const fireCtx = fireCanvas.getContext("2d", { alpha: false });
+
+    let cols = 0;
+    let rows = 0;
+    let firePixels = new Uint8Array(0);
+    let nextFirePixels = new Uint8Array(0);
+    let peaks = new Float32Array(0);
+    let imageData = null;
+    let dpr = 1;
+    let frameId = 0;
+    let lastTime = performance.now();
+    let time = 0;
+
+    let audioContext = null;
+    let analyser = null;
+    let micStream = null;
+    let freqData = null;
+
+    const palette = buildPalette();
+
+    function buildPalette() {
+      const stops = [
+        [0, 0, 0],
+        [22, 2, 0],
+        [70, 8, 0],
+        [135, 20, 0],
+        [206, 58, 0],
+        [244, 122, 0],
+        [255, 183, 38],
+        [255, 232, 122],
+        [255, 255, 244],
+      ];
+
+      const out = new Array(256);
+      for (let i = 0; i < 256; i += 1) {
+        const t = i / 255;
+        const seg = Math.min(stops.length - 2, Math.floor(t * (stops.length - 1)));
+        const localT = (t * (stops.length - 1)) - seg;
+        const a = stops[seg];
+        const b = stops[seg + 1];
+        out[i] = [
+          Math.round(a[0] + (b[0] - a[0]) * localT),
+          Math.round(a[1] + (b[1] - a[1]) * localT),
+          Math.round(a[2] + (b[2] - a[2]) * localT),
+        ];
+      }
+      return out;
+    }
+
+    function updateControlLabels() {
+      gainValue.textContent = `${Number(gainInput.value).toFixed(1)}x`;
+      smoothValue.textContent = Number(smoothInput.value).toFixed(2);
+      if (analyser) {
+        analyser.smoothingTimeConstant = Number(smoothInput.value);
+      }
+    }
+
+    function setStatus(text) {
+      statusEl.textContent = text;
+    }
+
+    function resize() {
+      const rect = shell.getBoundingClientRect();
+      const width = Math.max(220, Math.floor(rect.width));
+      const height = Math.max(140, Math.floor(rect.height));
+      dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+
+      canvas.width = Math.max(1, Math.floor(width * dpr));
+      canvas.height = Math.max(1, Math.floor(height * dpr));
+
+      const nextCols = Math.max(56, Math.floor(canvas.width / 6));
+      const nextRows = Math.max(34, Math.floor(canvas.height / 7));
+
+      cols = nextCols;
+      rows = nextRows;
+
+      fireCanvas.width = cols;
+      fireCanvas.height = rows;
+      fireCtx.imageSmoothingEnabled = false;
+
+      firePixels = new Uint8Array(cols * rows);
+      nextFirePixels = new Uint8Array(cols * rows);
+      peaks = new Float32Array(cols);
+      imageData = fireCtx.createImageData(cols, rows);
+    }
+
+    function wrapX(x) {
+      if (x < 0) return cols - 1;
+      if (x >= cols) return 0;
+      return x;
+    }
+
+    function sampleBand(startBin, endBin) {
+      if (!freqData) return 0;
+      let total = 0;
+      let count = 0;
+      const clampedEnd = Math.max(startBin + 1, Math.min(freqData.length, endBin));
+      for (let i = Math.max(0, startBin); i < clampedEnd; i += 1) {
+        total += freqData[i];
+        count += 1;
+      }
+      return count ? total / count : 0;
+    }
+
+    function updateBottomRowFromAudio() {
+      const bottomOffset = (rows - 1) * cols;
+      const gain = Number(gainInput.value);
+
+      if (analyser && freqData) {
+        analyser.getByteFrequencyData(freqData);
+        const lowBand = sampleBand(1, Math.max(4, Math.floor(freqData.length * 0.08)));
+        const roomFloor = Math.min(36, lowBand * 0.18);
+
+        for (let x = 0; x < cols; x += 1) {
+          const nx0 = x / cols;
+          const nx1 = (x + 1) / cols;
+          const shaped0 = Math.pow(nx0, 2.0);
+          const shaped1 = Math.pow(nx1, 2.0);
+          const bin0 = Math.floor(shaped0 * (freqData.length - 1));
+          const bin1 = Math.max(bin0 + 1, Math.floor(shaped1 * (freqData.length - 1)));
+          const band = sampleBand(bin0, bin1);
+
+          let energy = band * gain;
+          const sparkle = Math.random() * 8;
+          const pulse = Math.sin((time * 0.005) + x * 0.11) * 4;
+          energy = Math.min(255, energy + roomFloor + sparkle + pulse);
+
+          peaks[x] = Math.max(energy, peaks[x] * 0.88);
+          const peakBoost = peaks[x] * 0.18;
+          firePixels[bottomOffset + x] = Math.max(0, Math.min(255, Math.round(energy + peakBoost)));
+        }
+        return;
+      }
+
+      for (let x = 0; x < cols; x += 1) {
+        const wave =
+          Math.sin(time * 0.003 + x * 0.17) * 28 +
+          Math.sin(time * 0.006 + x * 0.07) * 14 +
+          Math.sin(time * 0.012 + x * 0.31) * 8;
+        const noise = Math.random() * 42;
+        const ember = (Math.random() > 0.93 ? 70 : 0);
+        const base = 92 + wave + noise + ember;
+        firePixels[bottomOffset + x] = Math.max(0, Math.min(200, base));
+        peaks[x] = firePixels[bottomOffset + x];
+      }
+    }
+
+    function propagateFire() {
+      updateBottomRowFromAudio();
+
+      const topFadeStart = Math.floor(rows * 0.2);
+      for (let y = 0; y < rows - 1; y += 1) {
+        const rowOffset = y * cols;
+        const belowOffset = (y + 1) * cols;
+        const below2Offset = Math.min((rows - 1) * cols, (y + 2) * cols);
+        const heightFactor = 1 - (y / (rows - 1));
+
+        for (let x = 0; x < cols; x += 1) {
+          const center = firePixels[belowOffset + x];
+          const left = firePixels[belowOffset + wrapX(x - 1)];
+          const right = firePixels[belowOffset + wrapX(x + 1)];
+          const below2 = firePixels[below2Offset + x];
+
+          let value = (center * 0.42) + (left * 0.2) + (right * 0.2) + (below2 * 0.18);
+          value -= 1 + Math.random() * (2.2 + heightFactor * 6.4);
+
+          if (y < topFadeStart) {
+            value -= (topFadeStart - y) * 0.08;
+          }
+
+          const drift = (Math.random() > 0.5 ? 1 : -1);
+          const writeX = wrapX(x + (Math.random() > 0.82 ? drift : 0));
+          nextFirePixels[rowOffset + writeX] = value > 0 ? value : 0;
+        }
+      }
+
+      const bottomOffset = (rows - 1) * cols;
+      for (let x = 0; x < cols; x += 1) {
+        nextFirePixels[bottomOffset + x] = firePixels[bottomOffset + x];
+      }
+
+      const swap = firePixels;
+      firePixels = nextFirePixels;
+      nextFirePixels = swap;
+      nextFirePixels.fill(0);
+    }
+
+    function drawFire() {
+      if (!imageData) return;
+      const data = imageData.data;
+      for (let i = 0; i < firePixels.length; i += 1) {
+        const color = palette[firePixels[i]];
+        const p = i * 4;
+        data[p] = color[0];
+        data[p + 1] = color[1];
+        data[p + 2] = color[2];
+        data[p + 3] = 255;
+      }
+
+      fireCtx.putImageData(imageData, 0, 0);
+      ctx.imageSmoothingEnabled = false;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(fireCanvas, 0, 0, canvas.width, canvas.height);
+
+      ctx.globalCompositeOperation = "screen";
+      ctx.fillStyle = "rgba(255, 170, 48, 0.05)";
+      ctx.fillRect(0, Math.floor(canvas.height * 0.3), canvas.width, Math.floor(canvas.height * 0.7));
+
+      ctx.fillStyle = "rgba(255, 255, 255, 0.035)";
+      for (let y = 0; y < canvas.height; y += Math.max(3, Math.floor(3 * dpr))) {
+        ctx.fillRect(0, y, canvas.width, 1);
+      }
+
+      ctx.globalCompositeOperation = "source-over";
+      const glow = ctx.createLinearGradient(0, canvas.height, 0, 0);
+      glow.addColorStop(0, "rgba(255, 130, 0, 0.14)");
+      glow.addColorStop(0.35, "rgba(255, 64, 0, 0.07)");
+      glow.addColorStop(1, "rgba(0, 0, 0, 0.18)");
+      ctx.fillStyle = glow;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function animate(now) {
+      const dt = Math.max(0, Math.min(40, now - lastTime));
+      lastTime = now;
+      time += dt;
+
+      propagateFire();
+      drawFire();
+
+      frameId = requestAnimationFrame(animate);
+    }
+
+    async function startMic() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        setStatus("Microphone API not available in this browser.");
+        return;
+      }
+
+      try {
+        stopMic();
+
+        micStream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            echoCancellation: false,
+            noiseSuppression: false,
+            autoGainControl: false,
+          },
+        });
+
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        audioContext = new AudioCtx();
+        await audioContext.resume();
+
+        analyser = audioContext.createAnalyser();
+        analyser.fftSize = 2048;
+        analyser.minDecibels = -95;
+        analyser.maxDecibels = -5;
+        analyser.smoothingTimeConstant = Number(smoothInput.value);
+
+        const source = audioContext.createMediaStreamSource(micStream);
+        source.connect(analyser);
+
+        freqData = new Uint8Array(analyser.frequencyBinCount);
+
+        startBtn.disabled = true;
+        stopBtn.disabled = false;
+        hintEl.classList.add("hidden");
+        setStatus("Microphone active. Play music or make noise to feed the flames.");
+      } catch (error) {
+        console.error(error);
+        const msg = error && error.name ? error.name : "Unable to start microphone";
+        setStatus(`Mic start failed: ${msg}. Demo flame is still running.`);
+        startBtn.disabled = false;
+        stopBtn.disabled = true;
+      }
+    }
+
+    function stopMic() {
+      if (micStream) {
+        micStream.getTracks().forEach((track) => track.stop());
+        micStream = null;
+      }
+
+      if (audioContext) {
+        audioContext.close().catch(() => {});
+        audioContext = null;
+      }
+
+      analyser = null;
+      freqData = null;
+      startBtn.disabled = false;
+      stopBtn.disabled = true;
+    }
+
+    startBtn.addEventListener("click", startMic);
+    stopBtn.addEventListener("click", () => {
+      stopMic();
+      setStatus("Microphone stopped. Demo flame running.");
+    });
+    gainInput.addEventListener("input", updateControlLabels);
+    smoothInput.addEventListener("input", updateControlLabels);
+
+    window.addEventListener("resize", resize);
+    if (window.ResizeObserver) {
+      new ResizeObserver(resize).observe(shell);
+    }
+
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden && !frameId) {
+        lastTime = performance.now();
+        frameId = requestAnimationFrame(animate);
+      }
+    });
+
+    window.addEventListener("pagehide", stopMic);
+    window.addEventListener("beforeunload", stopMic);
+
+    updateControlLabels();
+    resize();
+    frameId = requestAnimationFrame(animate);
+  </script>
+</body>
+</html>

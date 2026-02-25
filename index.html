@@ -919,6 +919,7 @@
       appWindow.style.left = `${leftOffset}px`;
       appWindow.style.top = `${topOffset}px`;
       openCount += 1;
+      const iframeAllowAttr = tool.iframeAllow ? ` allow="${tool.iframeAllow}"` : "";
 
       appWindow.innerHTML = `
         <div class="window-titlebar">
@@ -931,7 +932,7 @@
           </div>
         </div>
         <div class="window-content">
-          <iframe src="${tool.link}" loading="lazy" referrerpolicy="no-referrer"></iframe>
+          <iframe src="${tool.link}" title="${tool.title}" loading="lazy" referrerpolicy="no-referrer"${iframeAllowAttr}></iframe>
         </div>
         <div class="window-resizer window-resizer-right" data-resize="right" role="presentation"></div>
         <div class="window-resizer window-resizer-bottom" data-resize="bottom" role="presentation"></div>
